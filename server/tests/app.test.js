@@ -1,6 +1,7 @@
 import {describe, it, expect} from 'vitest';
 import request from 'supertest';
 import app from '../app.js';
+import { NotFoundError } from '../middleware/errorHandler.js';
 
 describe("GET /api/health", () => {
     it("should return 200 OK and a status message", async () => {
