@@ -21,4 +21,13 @@ const errorHandler = (err, req, res, next) => {
     const statusCode = err.statusCode || 500;
     res.status(statusCode).json({error: message});
 }
-export {NotFoundError, errorHandler, InvalidNumberError};
+
+class ValidationError extends Error {
+    constructor(message) {
+        super(message);
+        this.statusCode = 409;
+        this.name = "ValidationError";
+    }
+}
+
+export {NotFoundError, errorHandler, InvalidNumberError, ValidationError};

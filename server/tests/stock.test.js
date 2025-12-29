@@ -22,7 +22,7 @@ describe('GET /api/stocks', () => {
             totalCount: expect.any(Number)
         });
     });
-    it("should return APPL stock object", async () => {
+    it("should return AAPL stock object", async () => {
         const response = await request(app).get('/api/stocks/AAPL');
         expect(response.status).toEqual(200);
         expect(response.body).toMatchObject({
