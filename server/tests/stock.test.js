@@ -29,6 +29,11 @@ describe('GET /api/stocks', () => {
             symbol: "AAPL"
         });
     });
+    it("should gracefully return 400 error if page or limit values are wrong", async () => {
+        const response = await request(app).get('/api/stocks?page=hello&limit=2');
+        expect(response.status).toEqual(400);
+        expect(response.body).toEqual({error: "Invalid pagination values"});
+    });
     it("should gracefully return 404 error for a ticker that doesn't exist", async () => {
         const response = await request(app).get('/api/stocks/FAKE');
         expect(response.status).toEqual(404);

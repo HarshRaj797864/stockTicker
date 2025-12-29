@@ -1,10 +1,18 @@
 import prisma from "../db/db.js";
-import { NotFoundError } from "../middleware/errorHandler.js";
+import { InvalidNumberError, NotFoundError } from "../middleware/errorHandler.js";
 
 const getAllStocks = async (req, res, next) => {
     try {
-        const page = Number(req.query.page) || 1;
-        const limit = Number(req.query.limit) || 20;
+        const {page: rawPage, limit: rawLimit} = req.query;
+        if (rawPage !== undefined && (isNaN(Number(rawPage)) || Number(rawPage) <= 0)) {
+            return next(new InvalidNumberError("Invalid pagination values"));
+        }
+        if (rawLimit !== undefined && (isNaN(Number(rawLimit)) || Number(rawLimit) <= 0)) {
+            return next(new InvalidNumberError("Invalid pagination values"));
+        }
+        const page = Number(rawPage) || 1;
+        const limit = Number(rawLimit) || 20;
+        
         const skip = (page - 1)* limit;
         const [stocks, totalCount] = await Promise.all([
             prisma.stock.findMany({skip, take: limit, orderBy: {symbol: 'asc'}}),
