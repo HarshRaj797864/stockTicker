@@ -11,6 +11,17 @@ describe('GET /api/stocks', () => {
         expect(Array.isArray(response.body.data)).toEqual(true);
         expect(response.body.data.length).toBeGreaterThan(0); // should have seed data
     });
+    it("should return data wrapped in an object with metadata", async () => {
+        const response = await request(app).get('/api/stocks?page=1&limit=2');
+        expect(response.status).toEqual(200);
+        expect(response.body).toHaveProperty('data');
+        expect(response.body).toHaveProperty('meta');
+        expect(response.body.meta).toMatchObject({
+            page: 1,
+            limit: 2,
+            totalCount: expect.any(Number)
+        });
+    });
     it("should return APPL stock object", async () => {
         const response = await request(app).get('/api/stocks/AAPL');
         expect(response.status).toEqual(200);
