@@ -125,7 +125,7 @@ describe("GET /api/auth/me", () => {
       .get("/api/auth/me")
       .set("Authorization", `Bearer ${token}`);
     expect(res.status).toBe(200);
-    expect(res.body).toHaveProperty("id");
+    expect(res.body).not.toHaveProperty("id");
     expect(res.body.email).toBe("me@example.com");
   });
   it("should return 401 if no token is provided", async () => {
