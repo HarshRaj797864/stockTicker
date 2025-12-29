@@ -46,4 +46,10 @@ export class AuthenticationError extends Error {
     }
 }
 
-
+export class InvalidTokenError extends Error {
+   constructor(message) {
+        super(message);
+        this.statusCode = 403;
+        this.name = "InvalidTokenError"
+    } 
+}
