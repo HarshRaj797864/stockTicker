@@ -1,4 +1,4 @@
-import prisma from '../db.js';
+import prisma from '../db/db.js';
 const seedDatabase = async () => {
     try{
         console.log('starting seed');
