@@ -8,8 +8,8 @@ describe('GET /api/stocks', () => {
         // expecting an array of stocks
         const response = await request(app).get('/api/stocks');
         expect(response.status).toEqual(200);
-        expect(Array.isArray(response.body)).toEqual(true);
-        expect(response.body.length).toBeGreaterThan(0); // should have seed data
+        expect(Array.isArray(response.body.data)).toEqual(true);
+        expect(response.body.data.length).toBeGreaterThan(0); // should have seed data
     });
     it("should return APPL stock object", async () => {
         const response = await request(app).get('/api/stocks/AAPL');
