@@ -11,22 +11,42 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  
 }
 
 model Stock {
-  id Int @id @default(autoincrement())
-  symbol String @unique
-  companyName String
+  id           Int              @id @default(autoincrement())
+  symbol       String           @unique
+  companyName  String
   currentPrice Float
   initialPrice Float
-  createdAt DateTime @default(now())
+  createdAt    DateTime         @default(now())
+  watchlists   WatchlistStock[]
 }
 
 model User {
-  id Int @default(autoincrement())
-  email String @unique
-  password String
-  name String 
-  createdAt DateTime @default(now())
+  id         Int         @id @default(autoincrement())
+  email      String      @unique
+  password   String
+  name       String
+  createdAt  DateTime    @default(now())
+  watchlists Watchlist[]
+}
+
+model Watchlist {
+  id     Int              @id @default(autoincrement())
+  name   String
+  userId Int
+  user   User             @relation(fields: [userId], references: [id])
+  stocks WatchlistStock[]
+}
+
+model WatchlistStock {
+  id          Int       @id @default(autoincrement())
+  watchlistId Int
+  watchlist   Watchlist @relation(fields: [watchlistId], references: [id])
+  stockId     Int
+  stock       Stock     @relation(fields: [stockId], references: [id])
+  addedAt     DateTime  @default(now())
+
+  @@unique([watchlistId, stockId])
 }

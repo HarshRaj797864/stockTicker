@@ -13,7 +13,8 @@
     "generate": "prisma generate",
     "postinstall": "prisma generate",
     "migrate": "npx prisma migrate dev",
-    "migrate:reset": "npx prisma migrate reset"
+    "migrate:reset": "npx prisma migrate reset",
+    "format": "prisma format"
   },
   "keywords": [],
   "author": "",
