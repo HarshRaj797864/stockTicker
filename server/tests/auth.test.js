@@ -47,7 +47,7 @@ describe("POST /api/auth/signup", () => {
       name: "Short Password User",
     });
 
-    expect(res.status).toBe(409);
+    expect(res.status).toBe(400);
 
     expect(res.body).toHaveProperty("error");
     expect(res.body.error).toMatch(/password/i);

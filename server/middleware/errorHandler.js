@@ -25,9 +25,16 @@ const errorHandler = (err, req, res, next) => {
 class ValidationError extends Error {
     constructor(message) {
         super(message);
-        this.statusCode = 409;
+        this.statusCode = 400;
         this.name = "ValidationError";
     }
 }
 
-export {NotFoundError, errorHandler, InvalidNumberError, ValidationError};
+class ConflictError extends Error {
+    constructor(message) {
+        super(message);
+        this.statusCode = 409;
+        this.name = "ConflictError"
+    }
+}
+export {NotFoundError, errorHandler, InvalidNumberError, ValidationError, ConflictError};
