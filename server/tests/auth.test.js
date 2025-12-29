@@ -39,13 +39,11 @@ describe("POST /api/auth/signup", () => {
       },
     });
 
-    const res = await request(app)
-      .post("/api/auth/signup")
-      .send({
-        email: "duplicate@example.com",
-        password: "newpassword123",
-        name: "new User",
-      });
+    const res = await request(app).post("/api/auth/signup").send({
+      email: "duplicate@example.com",
+      password: "newpassword123",
+      name: "new User",
+    });
 
     expect(res.status).toBe(409);
   });
@@ -78,7 +76,7 @@ describe("POST /api/auth/login", () => {
   it("should login with valid credentials and return a token", async () => {
     const res = await request(app).post("/api/auth/login").send({
       email: "login@example.com",
-      password: "password123"
+      password: "password123",
     });
 
     expect(res.status).toBe(200);
@@ -88,10 +86,10 @@ describe("POST /api/auth/login", () => {
     expect(decoded.email).toBe("login@example.com");
     expect(decoded).toHaveProperty("userId");
   });
-  it("should prevent authorization for incorrect password",async () => {
+  it("should prevent authorization for incorrect password", async () => {
     const res = await request(app).post("/api/auth/login").send({
       email: "login@example.com",
-      password: "password123!!!"
+      password: "password123!!!",
     });
     expect(res.status).toBe(401);
     expect(res.body).toHaveProperty("error");
@@ -100,10 +98,46 @@ describe("POST /api/auth/login", () => {
   it("should prevent authorization for incorrect email", async () => {
     const res = await request(app).post("/api/auth/login").send({
       email: "loginFake@example.com",
-      password: "password123"
+      password: "password123",
     });
     expect(res.status).toBe(401);
     expect(res.body).toHaveProperty("error");
     expect(res.body.error).toMatch(/unauthorized/i);
+  });
+});
+
+describe("GET /api/auth/me", () => {
+  let token;
+  beforeEach(async () => {
+    await request(app).post("/api/auth/signup").send({
+      email: "me@example.com",
+      password: "password123",
+      name: "Profile User",
+    });
+    const loginRes = await request(app).post("/api/auth/login").send({
+      email: "me@example.com",
+      password: "password123",
+    });
+    token = loginRes.body.token;
+  });
+  it("should return user profile if the user is valid", async () => {
+    const res = await request(app)
+      .get("/api/auth/me")
+      .set("Authorization", `Bearer ${token}`);
+    expect(res.status).toBe(200);
+    expect(res.body).toHaveProperty("id");
+    expect(res.body.email).toBe("me@example.com");
+  });
+  it("should return 401 if no token is provided", async () => {
+    const res = await request(app)
+      .get("/api/auth/me");
+    expect(res.status).toBe(401);
+    expect(res.body.error).toMatch(/authentication required/i);
+  });
+  it("should return 403 if token is invalid", async () => {
+    const res = await request(app)
+      .get("/api/auth/me")
+      .set("Authorization", "Bearer FAKE_TOKEN_123");
+    expect(res.status).toBe(403);
   });
 });
