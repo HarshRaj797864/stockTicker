@@ -1,11 +1,10 @@
 import jwt from 'jsonwebtoken';
+import { AuthenticationError, InvalidTokenError } from './errorHandler';
 
 export const isAuthenticated = async (req, res, next) => {
   const header = req.headers.authorization;
   if (!header || !header.startsWith("Bearer "))
-    return res
-      .status(401)
-      .json({ error: "Authentication Required (No token provided)" });
+    return next(new AuthenticationError("Authentication Required (No token provided)"));
 
   const token = header.split(" ")[1];
   try {
@@ -14,6 +13,6 @@ export const isAuthenticated = async (req, res, next) => {
     req.user = decoded;
     next();
   } catch(e) {
-    return res.status(403).json({ error: "Invalid or expired token "});
+    return next(new InvalidTokenError("Invalid or expired token"));
   }
 };
