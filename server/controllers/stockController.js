@@ -1,8 +1,5 @@
-import prisma from "../db/db.js";
-import {
-  InvalidNumberError,
-  NotFoundError,
-} from "../middleware/errorHandler.js";
+import { findAllStocks, findStockByTicker } from "../services/stockService.js";
+import { InvalidNumberError } from "../middleware/errorHandler.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 
 const getAllStocks = asyncHandler(async (req, res, next) => {
@@ -22,32 +19,13 @@ const getAllStocks = asyncHandler(async (req, res, next) => {
   const page = Number(rawPage) || 1;
   const limit = Number(rawLimit) || 20;
 
-  const skip = (page - 1) * limit;
-  // Promise.all has transaction nature and also to reduce waiting time
-  const [stocks, totalCount] = await Promise.all([
-    prisma.stock.findMany({ skip, take: limit, orderBy: { symbol: "asc" } }),
-    prisma.stock.count(),
-  ]);
-  res.status(200).json({
-    data: stocks,
-    meta: {
-      totalCount,
-      page,
-      limit,
-      totalPages: Math.ceil(totalCount / limit),
-    },
-  });
+  const result = await findAllStocks({page, limit});
+  res.status(200).json(result);
 });
 
 const getStockByTicker = asyncHandler(async (req, res, next) => {
   const { ticker } = req.params;
-  const stock = await prisma.stock.findUnique({
-    where: {
-      symbol: ticker,
-    },
-  });
-
-  if (stock === null) return next(new NotFoundError("Stock Not Found"));
+  const stock = await findStockByTicker(ticker);
   res.status(200).json(stock);
 });
 
