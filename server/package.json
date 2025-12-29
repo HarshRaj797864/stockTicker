@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "nodemon server.js",
+    "dev": "nodemon --watch . --ext js,json --ignore tests/ server.js",
     "seed": "node prisma/seed.js",
     "test": "dotenv -e .env.test -- vitest",
     "test:run": "dotenv -e .env.test -- vitest run",
