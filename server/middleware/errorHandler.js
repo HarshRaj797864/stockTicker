@@ -1,4 +1,4 @@
-class NotFoundError extends Error {
+export class NotFoundError extends Error {
     constructor(message) {
         super(message);
         this.statusCode = 404;
@@ -7,7 +7,7 @@ class NotFoundError extends Error {
 }
 
 // if page number or limit is invalid
-class InvalidNumberError extends Error {
+export class InvalidNumberError extends Error {
     constructor(message) {
         super(message);
         this.statusCode = 400;
@@ -15,14 +15,14 @@ class InvalidNumberError extends Error {
     }
 }
 
-const errorHandler = (err, req, res, next) => {
+export const errorHandler = (err, req, res, next) => {
     if (process.env.NODE_ENV !== 'test') console.error(err.stack);
     const message = err.message || "Internal Server Error";
     const statusCode = err.statusCode || 500;
     res.status(statusCode).json({error: message});
 }
 
-class ValidationError extends Error {
+export class ValidationError extends Error {
     constructor(message) {
         super(message);
         this.statusCode = 400;
@@ -30,11 +30,11 @@ class ValidationError extends Error {
     }
 }
 
-class ConflictError extends Error {
+export class ConflictError extends Error {
     constructor(message) {
         super(message);
         this.statusCode = 409;
         this.name = "ConflictError"
     }
 }
-export {NotFoundError, errorHandler, InvalidNumberError, ValidationError, ConflictError};
+
