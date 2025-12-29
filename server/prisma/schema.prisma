@@ -22,3 +22,11 @@ model Stock {
   initialPrice Float
   createdAt DateTime @default(now())
 }
+
+model User {
+  id Int @default(autoincrement())
+  email String @unique
+  password String
+  name String 
+  createdAt DateTime @default(now())
+}

@@ -5,9 +5,15 @@
   "main": "index.js",
   "scripts": {
     "dev": "nodemon server.js",
-    "test": "vitest",
-    "test:run": "vitest run",
-    "seed": "node prisma/seed.js"
+    "seed": "node prisma/seed.js",
+    "test": "dotenv -e .env.test -- vitest",
+    "test:run": "dotenv -e .env.test -- vitest run",
+    "db:migrate:test": "dotenv -e .env.test -- npx prisma migrate dev",
+    "pretest": "npm run db:migrate:test",
+    "generate": "prisma generate",
+    "postinstall": "prisma generate",
+    "migrate": "npx prisma migrate dev",
+    "migrate:reset": "npx prisma migrate reset"
   },
   "keywords": [],
   "author": "",
@@ -22,6 +28,7 @@
     "pg": "^8.16.3"
   },
   "devDependencies": {
+    "dotenv-cli": "^11.0.0",
     "nodemon": "^3.1.11",
     "prisma": "^7.2.0",
     "supertest": "^7.1.4",
