@@ -6,6 +6,9 @@ import jwt from "jsonwebtoken";
 
 describe("POST /api/auth/signup", () => {
   beforeEach(async () => {
+    // due to referential integrity constraint
+    await prisma.watchlistStock.deleteMany();
+    await prisma.watchlist.deleteMany();
     await prisma.user.deleteMany();
   });
   it("should register a new user and verify database state", async () => {
@@ -129,8 +132,7 @@ describe("GET /api/auth/me", () => {
     expect(res.body.email).toBe("me@example.com");
   });
   it("should return 401 if no token is provided", async () => {
-    const res = await request(app)
-      .get("/api/auth/me");
+    const res = await request(app).get("/api/auth/me");
     expect(res.status).toBe(401);
     expect(res.body.error).toMatch(/authentication required/i);
   });

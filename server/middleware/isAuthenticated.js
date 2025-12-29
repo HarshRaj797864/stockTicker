@@ -9,6 +9,7 @@ export const isAuthenticated = async (req, res, next) => {
   const token = header.split(" ")[1];
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    
     // used by next function
     req.user = decoded;
     next();

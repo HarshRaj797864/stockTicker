@@ -4,6 +4,7 @@ import {healthRouter} from './routes/index.js';
 import { NotFoundError, errorHandler } from './middleware/errorHandler.js';
 import { stocksRouter } from './routes/stocks.js';
 import { authRouter } from './routes/auth.js';
+import { watchlistRouter } from './routes/watchlists.js';
 
 // will start a new express server, that is essentially wrapping the http.createServer 
 const app = express(); 
@@ -12,6 +13,7 @@ const app = express();
 app.use(cors()); // allows react to communicate with express
 app.use(express.json()); // Enables the app to read JSON data sent in request object
 
+app.use("/api/watchlists", watchlistRouter);
 app.use("/api/stocks", stocksRouter);
 app.use("/api/auth", authRouter);
 app.use("/api", healthRouter);
