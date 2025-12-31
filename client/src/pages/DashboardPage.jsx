@@ -1,5 +1,6 @@
 import React from "react";
 import { useStocks } from "../features/stocks/api/queries";
+import { AddToWatchlistButton } from "../features/watchlist/ui/AddToWatchlistButton";
 
 export const DashboardPage = () => {
   const { data: stockResponse, isLoading, error } = useStocks();
@@ -28,23 +29,28 @@ export const DashboardPage = () => {
             return (
               <div
                 key={stock.id}
-                className="p-4 border rounded shadow hover:shadow-md transition bg-white"
+                className="p-4 border rounded shadow hover:shadow-md transition bg-white relative"
               >
                 <div className="flex justify-between items-start">
                   <div>
                     <h2 className="text-xl font-bold">{stock.symbol}</h2>
                     <p className="text-gray-600 text-sm">{stock.companyName}</p>
                   </div>
-                  <span
-                    className={`px-2 py-1 rounded text-sm font-bold ${
-                      isPositive
-                        ? "bg-green-100 text-green-700"
-                        : "bg-red-100 text-red-700"
-                    }`}
-                  >
-                    {isPositive ? "+" : ""}
-                    {change.toFixed(2)}%
-                  </span>
+
+                  <div className="flex flex-col items-end gap-2">
+                    <span
+                      className={`px-2 py-1 rounded text-sm font-bold ${
+                        isPositive
+                          ? "bg-green-100 text-green-700"
+                          : "bg-red-100 text-red-700"
+                      }`}
+                    >
+                      {isPositive ? "+" : ""}
+                      {change.toFixed(2)}%
+                    </span>
+
+                    <AddToWatchlistButton ticker={stock.symbol} />
+                  </div>
                 </div>
 
                 <div className="mt-4">
