@@ -49,21 +49,21 @@ const WatchlistRow = ({ item, watchlistId }) => {
   const isPositive = change >= 0;
 
   return (
-    <tr className="border-b last:border-0 hover:bg-gray-50">
-      <td className="py-3 font-medium">{stock.symbol}</td>
-      <td className="py-3">${current.toFixed(2)}</td>
+    <tr className="border-b last:border-0 hover:bg-gray-50 transition-colors">
+      <td className="py-4 px-2 font-medium">{stock.symbol}</td>
+      <td className="py-4 px-2">${current.toFixed(2)}</td>
       <td
-        className={`py-3 font-bold ${
+        className={`py-4 px-2 font-bold ${
           isPositive ? "text-green-600" : "text-red-600"
         }`}
       >
         {isPositive ? "+" : ""}
         {change.toFixed(2)}%
       </td>
-      <td className="py-3 text-gray-400 text-sm">
+      <td className="py-4 px-2 text-gray-400 text-sm">
         {new Date(item.addedAt).toLocaleDateString()}
       </td>
-      <td className="py-3 text-right">
+      <td className="py-4 px-2 text-right">
         <button
           onClick={() =>
             removeMutation.mutate({
@@ -116,9 +116,9 @@ export const WatchlistPage = () => {
     );
 
   return (
-    <div className="p-6 max-w-6xl mx-auto">
+    <div className="p-10 max-w-7xl mx-auto min-h-screen bg-gray-50/50">
       <div className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
-        <h1 className="text-3xl font-bold text-gray-800">My Watchlists</h1>
+        <h1 className="text-4xl font-extrabold text-gray-900 tracking-tight">My Watchlists</h1>
 
         <form onSubmit={handleCreate} className="flex gap-2 w-full md:w-auto">
           <input

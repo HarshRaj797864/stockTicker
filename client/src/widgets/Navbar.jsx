@@ -13,7 +13,7 @@ export const Navbar = () => {
     }`;
 
   return (
-    <nav className="sticky top-0 z-50 bg-base-100 border-b border-base-300">
+    <nav className="relative z-50 bg-base-100 border-b border-base-300">
       <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
         <Link to="/" className="flex items-center gap-2">
           <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center text-white font-bold">
