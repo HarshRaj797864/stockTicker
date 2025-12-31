@@ -35,7 +35,7 @@ export const Navbar = () => {
                 Watchlists
               </NavLink>
               <span className="text-sm text-gray-700 hidden md:block">
-                Hi, {user.username || user.email}
+                Hi, {user.name || user.email}
               </span>
               <button
                 onClick={logout}
