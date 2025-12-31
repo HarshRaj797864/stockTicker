@@ -17,6 +17,7 @@ export const getUserWatchlists = async ({ userId }) => {
         },
       },
     },
+    
   });
 };
 
@@ -93,4 +94,26 @@ export const removeStockFromWatchlist = async ({
       },
     },
   });
+};
+
+export const deleteWatchlist = async ({ userId, watchlistId }) => {
+  const watchlist = await prisma.watchlist.findUnique({
+    where: { id: watchlistId },
+  });
+
+  if (!watchlist) {
+    throw new NotFoundError("Watchlist not found");
+  }
+  if (watchlist.userId !== userId) {
+    throw new Error("Unauthorized access to this watchlist");
+  }
+
+  return await prisma.$transaction([
+    prisma.watchlistStock.deleteMany({
+      where: { watchlistId: watchlistId },
+    }),
+    prisma.watchlist.delete({
+      where: { id: watchlistId },
+    }),
+  ]);
 };
