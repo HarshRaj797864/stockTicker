@@ -3,12 +3,12 @@ import React, { createContext, useContext, useState } from "react";
 const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
+  
   const [user, setUser] = useState(() => {
     try {
       const savedUser = localStorage.getItem("user");
       return savedUser ? JSON.parse(savedUser) : null;
-    } catch (error) {
-      console.error("Failed to parse user from local storage", error);
+    } catch  {
       return null;
     }
   });
@@ -20,7 +20,6 @@ export const AuthProvider = ({ children }) => {
   const login = (userData, authToken) => {
     setUser(userData);
     setToken(authToken);
-
     localStorage.setItem("user", JSON.stringify(userData));
     localStorage.setItem("token", authToken);
   };
@@ -28,13 +27,13 @@ export const AuthProvider = ({ children }) => {
   const logout = () => {
     setUser(null);
     setToken(null);
-
     localStorage.removeItem("user");
     localStorage.removeItem("token");
   };
 
   return (
-    <AuthContext.Provider value={{ user, token, login, logout }}>
+    
+    <AuthContext.Provider value={{ user, token, login, logout, isLoading: false }}>
       {children}
     </AuthContext.Provider>
   );

@@ -1,34 +1,44 @@
 import React from "react";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { Layout } from "../widgets/Layout";
+import { ProtectedRoute } from "./ProtectedRoute";
 
-const HomePage = () => (
-  <div className="text-2xl font-bold">Welcome to StockTicker Home</div>
-);
-const LoginPage = () => (
-  <div className="text-2xl font-bold">
-    <h1>Login</h1> 
-    <p>Please Login to Continue</p>
-  </div>
-);
+import { HomePage } from "../pages/HomePage/ui/HomePage";
+import { LoginPage } from "../pages/LoginPage/ui/LoginPage";
+import { RegisterPage } from "../pages/RegisterPage/ui/RegisterPage";
+import { DashboardPage } from "../pages/DashboardPage/ui/DashboardPage";
+
+const router = createBrowserRouter([
+  {
+    path: "/",
+    element: <Layout />,
+    children: [
+      {
+        index: true,
+        element: <HomePage />,
+      },
+      {
+        path: "login",
+        element: <LoginPage />,
+      },
+      {
+        path: "register",
+        element: <RegisterPage />,
+      },
+
+      {
+        element: <ProtectedRoute />,
+        children: [
+          {
+            path: "dashboard",
+            element: <DashboardPage />,
+          },
+        ],
+      },
+    ],
+  },
+]);
 
 export const AppRouter = () => {
-  const router = createBrowserRouter([
-    {
-      path: "/",
-      element: <Layout />,
-      children: [
-        {
-          index: true,
-          element: <HomePage />,
-        },
-        {
-          path: "login",
-          element: <LoginPage />,
-        },
-      ],
-    },
-  ]);
-
   return <RouterProvider router={router} />;
 };

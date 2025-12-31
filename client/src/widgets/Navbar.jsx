@@ -1,7 +1,10 @@
 import React from "react";
 import { NavLink, Link } from "react-router-dom";
+import { useAuth } from "../entities/user/model/AuthContext";
 
 export const Navbar = () => {
+  const { user, logout } = useAuth();
+
   const navLinkClass = ({ isActive }) =>
     `transition-colors duration-200 ${
       isActive
@@ -25,12 +28,27 @@ export const Navbar = () => {
           <NavLink to="/" className={navLinkClass}>
             Home
           </NavLink>
-          <NavLink to="/dashboard" className={navLinkClass}>
-            Watchlists
-          </NavLink>
-          <NavLink to="/login" className={navLinkClass}>
-            Login
-          </NavLink>
+
+          {user ? (
+            <>
+              <NavLink to="/dashboard" className={navLinkClass}>
+                Watchlists
+              </NavLink>
+              <span className="text-sm text-gray-700 hidden md:block">
+                Hi, {user.username || user.email}
+              </span>
+              <button
+                onClick={logout}
+                className="text-sm font-medium text-red-600 hover:text-red-700"
+              >
+                Logout
+              </button>
+            </>
+          ) : (
+            <NavLink to="/login" className={navLinkClass}>
+              Login
+            </NavLink>
+          )}
         </div>
       </div>
     </nav>
