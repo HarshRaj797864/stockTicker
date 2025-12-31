@@ -5,11 +5,10 @@ import { api } from "../shared/lib/api";
 import { Button } from "../shared/ui/Button";
 
 export const RegisterPage = () => {
-  
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  
+
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
@@ -22,23 +21,26 @@ export const RegisterPage = () => {
     setIsLoading(true);
 
     try {
-      
       const response = await api.post("/auth/signup", {
-        username,
+        name: username,
         email,
         password,
       });
 
       const { user, token } = response.data;
-      
+
       login(user, token);
       navigate("/dashboard");
-
     } catch (err) {
       console.error("Registration failed", err);
-      setError(
-        err.response?.data?.message || "Failed to create account. Try again."
-      );
+      const serverError =
+        err.response?.data?.message || err.response?.data?.error;
+      if (serverError === "Duplicate Email") {
+        setError("This email is already registered. Please log in instead.");
+      } else {
+        
+        setError(serverError || "Failed to create account. Try again.");
+      }
     } finally {
       setIsLoading(false);
     }
@@ -47,7 +49,6 @@ export const RegisterPage = () => {
   return (
     <div className="flex items-center justify-center min-h-[80vh] bg-gray-50 px-4">
       <div className="w-full max-w-md bg-white p-8 rounded-xl shadow-lg border border-gray-100">
-        
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-gray-900">Create Account</h1>
           <p className="text-gray-500 mt-2">Join StockTicker Pro today</p>
@@ -61,10 +62,11 @@ export const RegisterPage = () => {
         )}
 
         <form onSubmit={handleSubmit} className="space-y-6">
-          
-          
           <div>
-            <label htmlFor="username" className="block text-sm font-medium text-gray-700 mb-1">
+            <label
+              htmlFor="username"
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
               Full Name
             </label>
             <input
@@ -79,7 +81,10 @@ export const RegisterPage = () => {
           </div>
 
           <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+            <label
+              htmlFor="email"
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
               Email Address
             </label>
             <input
@@ -94,7 +99,10 @@ export const RegisterPage = () => {
           </div>
 
           <div>
-            <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
+            <label
+              htmlFor="password"
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
               Password
             </label>
             <input
@@ -102,7 +110,7 @@ export const RegisterPage = () => {
               type="password"
               required
               placeholder="Min 6 characters"
-              minLength={6} 
+              minLength={6}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition-all"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
@@ -115,12 +123,14 @@ export const RegisterPage = () => {
         </form>
 
         <div className="mt-6 text-center text-sm text-gray-600">
-          Already have an account?{' '}
-          <Link to="/login" className="font-semibold text-blue-600 hover:underline">
+          Already have an account?{" "}
+          <Link
+            to="/login"
+            className="font-semibold text-blue-600 hover:underline"
+          >
             Log in
           </Link>
         </div>
-
       </div>
     </div>
   );
