@@ -1,6 +1,7 @@
 import React from "react";
 import { useStocks } from "../features/stocks/api/queries";
 import { AddToWatchlistButton } from "../features/watchlist/ui/AddToWatchlistButton";
+import { Link } from "react-router-dom"; 
 
 export const DashboardPage = () => {
   const { data: stockResponse, isLoading, error } = useStocks();
@@ -32,10 +33,13 @@ export const DashboardPage = () => {
                 className="p-4 border rounded shadow hover:shadow-md transition bg-white relative"
               >
                 <div className="flex justify-between items-start">
-                  <div>
-                    <h2 className="text-xl font-bold">{stock.symbol}</h2>
-                    <p className="text-gray-600 text-sm">{stock.companyName}</p>
-                  </div>
+                  
+                  <Link to={`/stocks/${stock.symbol}`} className="flex-1 hover:opacity-70 transition-opacity">
+                    <div>
+                      <h2 className="text-xl font-bold text-blue-900 underline decoration-dotted">{stock.symbol}</h2>
+                      <p className="text-gray-600 text-sm">{stock.companyName}</p>
+                    </div>
+                  </Link>
 
                   <div className="flex flex-col items-end gap-2">
                     <span
@@ -49,18 +53,20 @@ export const DashboardPage = () => {
                       {change.toFixed(2)}%
                     </span>
 
+                    
                     <AddToWatchlistButton ticker={stock.symbol} />
                   </div>
                 </div>
 
-                <div className="mt-4">
+                
+                <Link to={`/stocks/${stock.symbol}`} className="block mt-4 hover:opacity-70">
                   <p className="text-2xl font-bold">
                     ${stock.currentPrice.toFixed(2)}
                   </p>
                   <p className="text-xs text-gray-400">
                     Prev: ${stock.initialPrice.toFixed(2)}
                   </p>
-                </div>
+                </Link>
               </div>
             );
           })

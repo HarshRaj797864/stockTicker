@@ -8,7 +8,7 @@ import { LoginPage } from "../pages/LoginPage";
 import { RegisterPage } from "../pages/RegisterPage";
 import { DashboardPage } from "../pages/DashboardPage";
 import { WatchlistPage } from "../pages/WatchlistPage";
-
+import { StockDetailPage } from "../pages/StockDetailPage";
 
 const router = createBrowserRouter([
   {
@@ -38,6 +38,10 @@ const router = createBrowserRouter([
           {
             path: "watchlists",
             element: <WatchlistPage />,
+          },
+          {
+            path: "stocks/:ticker", 
+            element: <StockDetailPage />,
           },
         ],
       },
