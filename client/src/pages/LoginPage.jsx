@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { useAuth } from "../../../app/AuthContext";
-import { api } from "../../../shared/lib/api";
-import { Button } from "../../../shared/ui/Button/Button";
+import { useAuth } from "../app/AuthContext";
+import { api } from "../shared/lib/api";
+import { Button } from "../shared/ui/Button";
 
 export const LoginPage = () => {
   const [email, setEmail] = useState("");

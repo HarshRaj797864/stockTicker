@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { useAuth } from "../../../app/AuthContext";
-import { api } from "../../../shared/lib/api";
-import { Button } from "../../../shared/ui/Button/Button";
+import { useAuth } from "../app/AuthContext";
+import { api } from "../shared/lib/api";
+import { Button } from "../shared/ui/Button";
 
 export const RegisterPage = () => {
   
@@ -23,7 +23,7 @@ export const RegisterPage = () => {
 
     try {
       
-      const response = await api.post("/auth/register", {
+      const response = await api.post("/auth/signup", {
         username,
         email,
         password,
