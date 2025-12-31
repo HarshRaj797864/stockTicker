@@ -1,5 +1,9 @@
-import { findAllStocks, findStockByTicker } from "../services/stockService.js";
-import { InvalidNumberError } from "../middleware/errorHandler.js";
+import {
+  findAllStocks,
+  findStockByTicker,
+  createNewStock,
+} from "../services/stockService.js";
+import { ConflictError, InvalidNumberError } from "../middleware/errorHandler.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 
 const getAllStocks = asyncHandler(async (req, res, next) => {
@@ -19,7 +23,7 @@ const getAllStocks = asyncHandler(async (req, res, next) => {
   const page = Number(rawPage) || 1;
   const limit = Number(rawLimit) || 20;
 
-  const result = await findAllStocks({page, limit});
+  const result = await findAllStocks({ page, limit });
   res.status(200).json(result);
 });
 
@@ -29,4 +33,21 @@ const getStockByTicker = asyncHandler(async (req, res, next) => {
   res.status(200).json(stock);
 });
 
-export { getAllStocks, getStockByTicker };
+const createStock = asyncHandler(async (req, res, next) => {
+  const { symbol, companyName, currentPrice, initialPrice } = req.body;
+
+  if (!symbol || !companyName || !currentPrice) {
+    next(new ConflictError("Missing required fields"));
+  }
+
+  const stock = await createNewStock({
+    symbol,
+    companyName,
+    currentPrice: Number(currentPrice),
+    initialPrice: Number(initialPrice),
+  });
+
+  res.status(201).json(stock);
+});
+
+export { getAllStocks, getStockByTicker, createStock };
