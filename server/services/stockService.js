@@ -98,3 +98,30 @@ export const syncMarketData = async (tickers) => {
     take: 20,
   });
 };
+
+// database does not have access to last 30 days of data for chart hence using Finnhub API for it
+export const fetchStockHistory = async (symbol, resolution = "D") => {
+  const apiKey = process.env.FINNHUB_API_KEY;
+
+  const to = Math.floor(Date.now() / 1000);
+  const from = to - 30 * 24 * 60 * 60;
+
+  try {
+    const url = `https://finnhub.io/api/v1/stock/candle?symbol=${symbol}&resolution=${resolution}&from=${from}&to=${to}&token=${apiKey}`;
+
+    const response = await axios.get(url);
+    const data = response.data;
+
+    if (data.s === "ok") {
+      return data.t.map((timestamp, index) => ({
+        date: new Date(timestamp * 1000).toLocaleDateString(),
+        price: data.c[index],
+      }));
+    } else {
+      return [];
+    }
+  } catch (error) {
+    console.error(`Failed to fetch history for ${symbol}:`, error.message);
+    throw new Error("External API Error");
+  }
+};

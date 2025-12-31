@@ -3,6 +3,7 @@ import {
   findStockByTicker,
   createNewStock,
   syncMarketData,
+  fetchStockHistory,
 } from "../services/stockService.js";
 import { ConflictError, InvalidNumberError } from "../middleware/errorHandler.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
@@ -64,5 +65,10 @@ export const triggerSync = asyncHandler(async (req, res) => {
   });
 });
 
+export const getStockHistory = asyncHandler(async (req, res) => {
+  const { ticker } = req.params;
+  const history = await fetchStockHistory(ticker);
+  res.status(200).json(history);
+});
 
 export { getAllStocks, getStockByTicker, createStock };
