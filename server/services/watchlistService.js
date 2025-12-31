@@ -1,48 +1,67 @@
 import prisma from "../db/db.js";
-import {
-  ConflictError,
-  NotFoundError,
-  ValidationError,
-} from "../middleware/errorHandler.js";
+import { NotFoundError, ConflictError } from "../middleware/errorHandler.js"; // Ensure you have these
 
 export const createWatchlist = async ({ userId, name }) => {
-  if (!name || !name.trim()) throw new ValidationError("Name is unavailable");
-  const list = await prisma.watchlist.create({
-    data: {
-      name: name,
-      userId: parseInt(userId),
-    },
+  return await prisma.watchlist.create({
+    data: { name, userId },
   });
-  return list;
 };
 
 export const getUserWatchlists = async ({ userId }) => {
-  const lists = await prisma.watchlist.findMany({ where: { userId } });
-  return lists;
+  return await prisma.watchlist.findMany({
+    where: { userId },
+    include: {
+      stocks: {
+        include: {
+          stock: true,
+        },
+      },
+    },
+  });
 };
 
 export const addStockToWatchlist = async ({ userId, watchlistId, symbol }) => {
-  const stock = await prisma.stock.findUnique({ where: { symbol } });
-  if (!stock) throw new NotFoundError("Stock not found");
-  const { id: stockId } = stock;
-
-  const foundlist = await prisma.watchlist.findFirst({
-    where: { id: parseInt(watchlistId), userId: parseInt(userId) },
+  const watchlist = await prisma.watchlist.findUnique({
+    where: { id: watchlistId },
   });
-  if (!foundlist) throw new NotFoundError("Watchlist not found");
 
-  try {
-    const watchlistStock = await prisma.watchlistStock.create({
-      data: {
-        watchlistId: parseInt(foundlist.id),
-        stockId: parseInt(stockId),
-      },
-    });
-    return watchlistStock;
-  } catch (e) {
-    // P2002 code is for Unique constraint violation
-    if (e.code === "P2002")
-      throw new ConflictError("Stock already in watchlist");
-    throw e;
+  if (!watchlist) {
+    throw new NotFoundError("Watchlist not found");
   }
+  if (watchlist.userId !== userId) {
+    throw new Error("Unauthorized access to this watchlist");
+  }
+
+  const stock = await prisma.stock.findUnique({
+    where: { symbol: symbol },
+  });
+
+  if (!stock) {
+    throw new NotFoundError(
+      `Stock '${symbol}' not found in database. Please sync market data first.`
+    );
+  }
+
+  const existingEntry = await prisma.watchlistStock.findUnique({
+    where: {
+      watchlistId_stockId: {
+        watchlistId: watchlistId,
+        stockId: stock.id,
+      },
+    },
+  });
+
+  if (existingEntry) {
+    throw new ConflictError("Stock is already in this watchlist");
+  }
+
+  return await prisma.watchlistStock.create({
+    data: {
+      watchlistId,
+      stockId: stock.id,
+    },
+    include: {
+      stock: true,
+    },
+  });
 };
