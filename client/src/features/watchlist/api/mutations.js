@@ -43,3 +43,16 @@ export const useAddToWatchlist = () => {
     },
   });
 };
+
+export const useRemoveFromWatchlist = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ watchlistId, ticker }) => {
+      return api.delete(`/watchlists/${watchlistId}/stocks/${ticker}`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(['watchlists']);
+    },
+  });
+};

@@ -1,5 +1,5 @@
 import prisma from "../db/db.js";
-import { NotFoundError, ConflictError } from "../middleware/errorHandler.js"; // Ensure you have these
+import { NotFoundError, ConflictError } from "../middleware/errorHandler.js";
 
 export const createWatchlist = async ({ userId, name }) => {
   return await prisma.watchlist.create({
@@ -62,6 +62,35 @@ export const addStockToWatchlist = async ({ userId, watchlistId, symbol }) => {
     },
     include: {
       stock: true,
+    },
+  });
+};
+
+export const removeStockFromWatchlist = async ({
+  userId,
+  watchlistId,
+  ticker,
+}) => {
+  const watchlist = await prisma.watchlist.findUnique({
+    where: { id: watchlistId },
+  });
+
+  if (!watchlist || watchlist.userId !== userId) {
+    throw new Error("Unauthorized");
+  }
+
+  const stock = await prisma.stock.findUnique({
+    where: { symbol: ticker },
+  });
+
+  if (!stock) throw new Error("Stock not found");
+
+  return await prisma.watchlistStock.delete({
+    where: {
+      watchlistId_stockId: {
+        watchlistId: watchlistId,
+        stockId: stock.id,
+      },
     },
   });
 };
