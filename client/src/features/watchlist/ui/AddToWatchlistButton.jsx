@@ -45,14 +45,15 @@ export const AddToWatchlistButton = ({ ticker }) => {
             e.stopPropagation(); 
             setIsOpen(!isOpen);
         }}
-        className="text-sm bg-primary text-white px-3 py-1 rounded hover:bg-primary/80 transition z-10 relative"
+        
+        className="text-sm bg-primary text-white px-3 py-1 rounded hover:bg-gray-900 transition-colors duration-200 z-10 relative font-medium"
       >
         + Add
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-48 bg-base-100 border rounded shadow-xl z-20 p-2">
-          <p className="text-xs text-base-content/50 mb-2 px-2">Select Watchlist:</p>
+        <div className="absolute right-0 mt-2 w-48 bg-base-100 border border-base-200 rounded-lg shadow-xl z-20 p-2">
+          <p className="text-xs text-base-content/50 mb-2 px-2 font-semibold uppercase tracking-wider">Select Watchlist:</p>
           {watchlists?.length > 0 ? (
             watchlists.map((list) => (
               <button
@@ -62,7 +63,7 @@ export const AddToWatchlistButton = ({ ticker }) => {
                     e.stopPropagation();
                     handleAdd(list.id);
                 }}
-                className="block w-full text-left px-2 py-1 text-sm hover:bg-base-200 rounded text-base-content"
+                className="block w-full text-left px-2 py-1.5 text-sm hover:bg-base-200 rounded text-base-content transition-colors"
               >
                 {list.name}
               </button>

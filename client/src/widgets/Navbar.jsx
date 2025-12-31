@@ -6,25 +6,25 @@ export const Navbar = () => {
   const { user, logout } = useAuth();
 
   const navLinkClass = ({ isActive }) =>
-    `transition-colors duration-200 ${
+    `transition-all duration-200 font-medium px-4 py-2 rounded-full cursor-pointer ${
       isActive
-        ? "text-primary font-semibold border-b-2 border-primary"
-        : "text-base-content/70 hover:text-primary"
+        ? "text-white !bg-white/10"
+        : "text-white !bg-transparent hover:!bg-white/10"
     }`;
 
   return (
-    <nav className="relative z-50 bg-base-100 border-b border-base-300">
+    <nav className="sticky top-0 z-50 bg-black/50 backdrop-blur-md">
       <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
-        <Link to="/" className="flex items-center gap-2">
-          <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center text-white font-bold">
+        <Link to="/" className="flex items-center gap-2 group cursor-pointer">
+          <div className="w-8 h-8 bg-gradient-to-br from-pink-500 to-rose-600 rounded-lg flex items-center justify-center text-white font-bold group-hover:scale-110 transition-transform shadow-lg shadow-pink-500/20">
             S
           </div>
-          <span className="text-xl font-bold text-base-content tracking-tight">
+          <span className="text-xl font-bold text-white tracking-tight">
             StockTicker
           </span>
         </Link>
 
-        <div className="flex items-center gap-6">
+        <div className="flex items-center gap-2 md:gap-4">
           <NavLink to="/" className={navLinkClass}>
             Home
           </NavLink>
@@ -39,15 +39,18 @@ export const Navbar = () => {
                 Watchlists
               </NavLink>
 
+              <div className="h-6 w-px bg-white/20 mx-2 hidden md:block"></div>
+
               <Link
                 to="/profile"
-                className="text-sm text-base-content/80 hidden md:block border-l pl-6 ml-2 hover:text-primary transition"
+                className="text-sm font-medium text-white hidden md:block hover:!bg-white/10 !bg-transparent px-4 py-2 rounded-full transition cursor-pointer"
               >
                 Hi, {user.name || user.email}
               </Link>
+
               <button
                 onClick={logout}
-                className="text-sm font-medium text-red-600 hover:text-red-700"
+                className="cursor-pointer text-sm font-medium text-red-500 hover:!bg-red-500/10 hover:text-red-400 !bg-transparent px-4 py-2 rounded-full transition-colors"
               >
                 Logout
               </button>

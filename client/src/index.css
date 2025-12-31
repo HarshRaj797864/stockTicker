@@ -3,6 +3,17 @@
 /* Add this AFTER @import "tailwindcss"; in your index.css */
 /* COLORS ONLY - No layout changes */
 
+/* Text selection color */
+::selection {
+  background-color: rgba(255, 255, 255, 0.2) !important;
+  color: #ffffff !important;
+}
+
+::-moz-selection {
+  background-color: rgba(255, 255, 255, 0.2) !important;
+  color: #ffffff !important;
+}
+
 :root {
   /* React.dev exact colors */
   --bg-primary: #23272f;
