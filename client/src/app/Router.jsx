@@ -9,6 +9,7 @@ import { RegisterPage } from "../pages/RegisterPage";
 import { DashboardPage } from "../pages/DashboardPage";
 import { WatchlistPage } from "../pages/WatchlistPage";
 import { StockDetailPage } from "../pages/StockDetailPage";
+import { ProfilePage } from "../pages/ProfilePage";
 
 const router = createBrowserRouter([
   {
@@ -40,8 +41,12 @@ const router = createBrowserRouter([
             element: <WatchlistPage />,
           },
           {
-            path: "stocks/:ticker", 
+            path: "stocks/:ticker",
             element: <StockDetailPage />,
+          },
+          {
+            path: "profile",
+            element: <ProfilePage />,
           },
         ],
       },
