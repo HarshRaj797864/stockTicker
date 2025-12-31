@@ -1,4 +1,5 @@
 import prisma from "../db/db.js";
+import axios from "axios";
 import { NotFoundError, ConflictError } from "../middleware/errorHandler.js";
 
 export const findAllStocks = async ({ page, limit }) => {
@@ -45,4 +46,55 @@ export const createNewStock = async ({
   });
 
   return stock;
+};
+
+export const syncMarketData = async (tickers) => {
+  console.log(`Syncing data via Finnhub for: ${tickers.join(", ")}`);
+
+  const apiKey = process.env.FINNHUB_API_KEY;
+  if (!apiKey) {
+    throw new Error("Missing FINNHUB_API_KEY in environment variables");
+  }
+
+  const updates = tickers.map(async (symbol) => {
+    try {
+      const response = await axios.get(`https://finnhub.io/api/v1/quote`, {
+        params: {
+          symbol: symbol,
+          token: apiKey,
+        },
+      });
+
+      const { c: currentPrice, pc: initialPrice } = response.data;
+
+      if (currentPrice === 0) {
+        console.warn(`Invalid symbol or no data for: ${symbol}`);
+        return null;
+      }
+
+      return prisma.stock.upsert({
+        where: { symbol: symbol },
+        update: {
+          currentPrice: Number(currentPrice),
+          initialPrice: Number(initialPrice),
+        },
+        create: {
+          symbol: symbol,
+          companyName: symbol,
+          currentPrice: Number(currentPrice),
+          initialPrice: Number(initialPrice),
+        },
+      });
+    } catch (error) {
+      console.error(`Failed to fetch ${symbol}:`, error.message);
+      return null;
+    }
+  });
+
+  await Promise.all(updates);
+
+  return await prisma.stock.findMany({
+    orderBy: { symbol: "asc" },
+    take: 20,
+  });
 };

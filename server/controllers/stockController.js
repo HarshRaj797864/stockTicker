@@ -2,6 +2,7 @@ import {
   findAllStocks,
   findStockByTicker,
   createNewStock,
+  syncMarketData,
 } from "../services/stockService.js";
 import { ConflictError, InvalidNumberError } from "../middleware/errorHandler.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
@@ -49,5 +50,19 @@ const createStock = asyncHandler(async (req, res, next) => {
 
   res.status(201).json(stock);
 });
+
+export const triggerSync = asyncHandler(async (req, res) => {
+  const tickers = req.body?.tickers || ["AAPL", "MSFT", "GOOGL", "AMZN", "TSLA", "NVDA", "META"];
+
+  
+  const updatedStocks = await syncMarketData(tickers);
+  
+  res.status(200).json({
+    message: "Market data synced successfully",
+    count: updatedStocks.length,
+    data: updatedStocks
+  });
+});
+
 
 export { getAllStocks, getStockByTicker, createStock };
