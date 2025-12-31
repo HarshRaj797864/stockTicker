@@ -1,12 +1,12 @@
 import React from "react";
 import { Navigate, Outlet } from "react-router-dom";
-import { useAuth } from "../app/AuthContext";
+import { useAuth } from "./AuthContext";
 
 export const ProtectedRoute = () => {
   const { user, isLoading } = useAuth();
 
   if (isLoading) {
-    return <div className="p-4 text-center">Loading session...</div>;
+    return <div className="min-h-screen bg-black text-white flex items-center justify-center">Loading session...</div>;
   }
 
   if (!user) {
