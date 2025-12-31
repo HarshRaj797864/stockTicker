@@ -5,28 +5,32 @@ import {
   syncMarketData,
   fetchStockHistory,
 } from "../services/stockService.js";
-import { ConflictError, InvalidNumberError } from "../middleware/errorHandler.js";
+import {
+  ConflictError,
+  InvalidNumberError,
+} from "../middleware/errorHandler.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 
 const getAllStocks = asyncHandler(async (req, res, next) => {
-  const { page: rawPage, limit: rawLimit } = req.query;
-  if (
-    rawPage !== undefined &&
-    (isNaN(Number(rawPage)) || Number(rawPage) <= 0)
-  ) {
-    return next(new InvalidNumberError("Invalid pagination values"));
-  }
-  if (
-    rawLimit !== undefined &&
-    (isNaN(Number(rawLimit)) || Number(rawLimit) <= 0)
-  ) {
-    return next(new InvalidNumberError("Invalid pagination values"));
-  }
-  const page = Number(rawPage) || 1;
-  const limit = Number(rawLimit) || 20;
+  const { page: rawPage = 1, limit: rawLimit = 20, search = "" } = req.query;
+  const page = Number(rawPage);
+  const limit = Number(rawLimit);
 
-  const result = await findAllStocks({ page, limit });
-  res.status(200).json(result);
+  if (isNaN(page) || page <= 0 || isNaN(limit) || limit <= 0) {
+    return next(new InvalidNumberError("Invalid pagination values"));
+  }
+
+  const { stocks, total } = await findAllStocks({ page, limit, search });
+
+  res.status(200).json({
+    data: stocks,
+    meta: {
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+    },
+  });
 });
 
 const getStockByTicker = asyncHandler(async (req, res, next) => {
@@ -39,7 +43,7 @@ const createStock = asyncHandler(async (req, res, next) => {
   const { symbol, companyName, currentPrice, initialPrice } = req.body;
 
   if (!symbol || !companyName || !currentPrice) {
-    next(new ConflictError("Missing required fields"));
+    return next(new ConflictError("Missing required fields"));
   }
 
   const stock = await createNewStock({
@@ -53,15 +57,22 @@ const createStock = asyncHandler(async (req, res, next) => {
 });
 
 export const triggerSync = asyncHandler(async (req, res) => {
-  const tickers = req.body?.tickers || ["AAPL", "MSFT", "GOOGL", "AMZN", "TSLA", "NVDA", "META"];
+  const tickers = req.body?.tickers || [
+    "AAPL",
+    "MSFT",
+    "GOOGL",
+    "AMZN",
+    "TSLA",
+    "NVDA",
+    "META",
+  ];
 
-  
   const updatedStocks = await syncMarketData(tickers);
-  
+
   res.status(200).json({
     message: "Market data synced successfully",
-    count: updatedStocks.length,
-    data: updatedStocks
+    count: updatedStocks ? updatedStocks.length : 0,
+    data: updatedStocks,
   });
 });
 

@@ -2,23 +2,29 @@ import prisma from "../db/db.js";
 import axios from "axios";
 import { NotFoundError, ConflictError } from "../middleware/errorHandler.js";
 
-export const findAllStocks = async ({ page, limit }) => {
+export const findAllStocks = async ({ page, limit, search }) => {
   const skip = (page - 1) * limit;
 
-  const [stocks, totalCount] = await Promise.all([
-    prisma.stock.findMany({ skip, take: limit, orderBy: { symbol: "asc" } }),
-    prisma.stock.count(),
+  const whereClause = search
+    ? {
+        OR: [
+          { symbol: { contains: search, mode: "insensitive" } },
+          { companyName: { contains: search, mode: "insensitive" } },
+        ],
+      }
+    : {};
+
+  const [stocks, total] = await prisma.$transaction([
+    prisma.stock.findMany({
+      where: whereClause,
+      skip: skip,
+      take: limit,
+      orderBy: { symbol: "asc" },
+    }),
+    prisma.stock.count({ where: whereClause }),
   ]);
 
-  return {
-    data: stocks,
-    meta: {
-      totalCount,
-      page,
-      limit,
-      totalPages: Math.ceil(totalCount / limit),
-    },
-  };
+  return { stocks, total };
 };
 
 export const findStockByTicker = async (ticker) => {

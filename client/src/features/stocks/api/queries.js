@@ -1,13 +1,18 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, keepPreviousData } from "@tanstack/react-query"; 
 import { api } from "../../../shared/lib/api";
 
-export const useStocks = () => {
+export const useStocks = ({ page = 1, search = "" } = {}) => {
   return useQuery({
-    queryKey: ["stocks"],
+    queryKey: ["stocks", page, search],
+
     queryFn: async () => {
-      const response = await api.get("/stocks");
-      return response.data; 
+      const res = await api.get("/stocks", {
+        params: { page, limit: 12, search },
+      });
+      return res.data;
     },
-    staleTime: 1000 * 60, 
+
+    placeholderData: keepPreviousData,
+    staleTime: 5000,
   });
 };
