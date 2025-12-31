@@ -31,10 +31,17 @@ export const Navbar = () => {
 
           {user ? (
             <>
+              
               <NavLink to="/dashboard" className={navLinkClass}>
+                Dashboard
+              </NavLink>
+
+              
+              <NavLink to="/watchlists" className={navLinkClass}>
                 Watchlists
               </NavLink>
-              <span className="text-sm text-gray-700 hidden md:block">
+
+              <span className="text-sm text-gray-700 hidden md:block border-l pl-6 ml-2">
                 Hi, {user.name || user.email}
               </span>
               <button

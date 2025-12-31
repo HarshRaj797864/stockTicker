@@ -7,6 +7,8 @@ import { HomePage } from "../pages/HomePage";
 import { LoginPage } from "../pages/LoginPage";
 import { RegisterPage } from "../pages/RegisterPage";
 import { DashboardPage } from "../pages/DashboardPage";
+import { WatchlistPage } from "../pages/WatchlistPage";
+
 
 const router = createBrowserRouter([
   {
@@ -32,6 +34,10 @@ const router = createBrowserRouter([
           {
             path: "dashboard",
             element: <DashboardPage />,
+          },
+          {
+            path: "watchlists",
+            element: <WatchlistPage />,
           },
         ],
       },
