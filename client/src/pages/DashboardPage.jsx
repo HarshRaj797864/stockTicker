@@ -27,7 +27,7 @@ export const DashboardPage = () => {
     return <div className="text-center p-10">Loading market data...</div>;
   if (error)
     return (
-      <div className="text-center p-10 text-red-500">Failed to load stocks</div>
+      <div className="text-center p-10 text-error">Failed to load stocks</div>
     );
 
   return (
@@ -49,7 +49,7 @@ export const DashboardPage = () => {
             return (
               <div
                 key={stock.id}
-                className="p-4 border rounded shadow hover:shadow-md transition bg-white relative"
+                className="p-4 border rounded shadow hover:shadow-md transition bg-base-100 relative"
               >
                 <div className="flex justify-between items-start">
                   <Link
@@ -57,10 +57,10 @@ export const DashboardPage = () => {
                     className="flex-1 hover:opacity-70 transition-opacity"
                   >
                     <div>
-                      <h2 className="text-xl font-bold text-blue-900 underline decoration-dotted">
+                      <h2 className="text-xl font-bold text-primary underline decoration-dotted">
                         {stock.symbol}
                       </h2>
-                      <p className="text-gray-600 text-sm">
+                      <p className="text-base-content/60 text-sm">
                         {stock.companyName}
                       </p>
                     </div>
@@ -70,8 +70,8 @@ export const DashboardPage = () => {
                     <span
                       className={`px-2 py-1 rounded text-sm font-bold ${
                         isPositive
-                          ? "bg-green-100 text-green-700"
-                          : "bg-red-100 text-red-700"
+                          ? "bg-success/20 text-success"
+                          : "bg-error/20 text-error"
                       }`}
                     >
                       {isPositive ? "+" : ""}
@@ -89,7 +89,7 @@ export const DashboardPage = () => {
                   <p className="text-2xl font-bold">
                     ${stock.currentPrice.toFixed(2)}
                   </p>
-                  <p className="text-xs text-gray-400">
+                  <p className="text-xs text-base-content/40">
                     Prev: ${stock.initialPrice.toFixed(2)}
                   </p>
                 </Link>
@@ -97,7 +97,7 @@ export const DashboardPage = () => {
             );
           })
         ) : (
-          <div className="col-span-full text-center py-10 text-gray-500">
+          <div className="col-span-full text-center py-10 text-base-content/50">
             No stocks found matching "{search}".
           </div>
         )}
@@ -107,12 +107,12 @@ export const DashboardPage = () => {
         <button
           onClick={() => setPage((old) => Math.max(old - 1, 1))}
           disabled={page === 1}
-          className="px-4 py-2 bg-white border rounded disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 text-gray-700"
+          className="px-4 py-2 bg-base-100 border rounded disabled:opacity-50 disabled:cursor-not-allowed hover:bg-base-200 text-base-content"
         >
           Previous
         </button>
 
-        <span className="text-sm text-gray-600">
+        <span className="text-sm text-base-content/60">
           Page {page} of {meta.totalPages || 1}
         </span>
 
@@ -123,7 +123,7 @@ export const DashboardPage = () => {
             }
           }}
           disabled={isPlaceholderData || page >= meta.totalPages}
-          className="px-4 py-2 bg-blue-600 text-white rounded disabled:opacity-50 disabled:cursor-not-allowed hover:bg-blue-700"
+          className="px-4 py-2 bg-primary text-white rounded disabled:opacity-50 disabled:cursor-not-allowed hover:bg-primary/80"
         >
           Next
         </button>

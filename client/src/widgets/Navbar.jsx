@@ -8,18 +8,18 @@ export const Navbar = () => {
   const navLinkClass = ({ isActive }) =>
     `transition-colors duration-200 ${
       isActive
-        ? "text-blue-600 font-semibold border-b-2 border-blue-600"
-        : "text-gray-500 hover:text-blue-500"
+        ? "text-primary font-semibold border-b-2 border-primary"
+        : "text-base-content/70 hover:text-primary"
     }`;
 
   return (
-    <nav className="sticky top-0 z-50 bg-white border-b border-gray-200">
+    <nav className="sticky top-0 z-50 bg-base-100 border-b border-base-300">
       <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
         <Link to="/" className="flex items-center gap-2">
-          <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white font-bold">
+          <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center text-white font-bold">
             S
           </div>
-          <span className="text-xl font-bold text-gray-900 tracking-tight">
+          <span className="text-xl font-bold text-base-content tracking-tight">
             StockTicker
           </span>
         </Link>
@@ -41,7 +41,7 @@ export const Navbar = () => {
 
               <Link
                 to="/profile"
-                className="text-sm text-gray-700 hidden md:block border-l pl-6 ml-2 hover:text-blue-600 transition"
+                className="text-sm text-base-content/80 hidden md:block border-l pl-6 ml-2 hover:text-primary transition"
               >
                 Hi, {user.name || user.email}
               </Link>
