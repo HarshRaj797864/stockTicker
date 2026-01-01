@@ -1,3 +1,5 @@
+---
+
 # StockTicker
 
 A full-stack stock tracking application built to understand **end-to-end system design**, backend fundamentals, and frontend–backend integration.
@@ -39,7 +41,9 @@ The goal was not completeness, but **depth and explainability**.
 ### External Services
 
 * **Finnhub API** — real stock market data
-* **Render (PaaS)** — backend deployment
+* **Vercel** — frontend deployment
+* **Railway (PaaS)** — backend deployment
+* **Supabase** — PostgreSQL database
 
 ### Testing
 
@@ -47,6 +51,14 @@ The goal was not completeness, but **depth and explainability**.
 * Supertest
 * React Testing Library
   (Tests focus on API behavior and user-visible UI flows only)
+
+---
+
+## Live Deployment
+
+* **Frontend:** [https://stock-ticker-eta.vercel.app/](https://stock-ticker-eta.vercel.app/)
+* **Backend API:** [https://stockticker-api-production.up.railway.app/](https://stockticker-api-production.up.railway.app/)
+* **Database:** Supabase (PostgreSQL)
 
 ---
 
@@ -88,9 +100,9 @@ server/
 ### Design Choices
 
 * `app.js` and `server.js` are separated to simplify testing
-* Controllers stay thin and delegate logic to services
+* Controllers remain thin and delegate logic to services
 * Services handle database access and external API calls
-* Centralized error handling middleware
+* Centralized error-handling middleware
 * Environment variables for secrets and configuration
 * Clear separation between routing, logic, and data
 
@@ -159,14 +171,15 @@ Testing was intentionally scoped to **high-signal cases**.
 * Loading and error states
 * Authentication flow behavior
 
-UI styling, component internals, and snapshots were intentionally not tested.
+UI styling, component internals, and snapshot tests were intentionally not included.
 
 ---
 
 ## Deployment
 
-* Backend deployed on **Railway (Platform as a Service)**
-* Postgres Database deployed on **Supabase**
+* Frontend deployed on **Vercel**
+* Backend deployed on **Railway**
+* PostgreSQL hosted on **Supabase**
 * Environment variables configured for:
 
   * Database connection
@@ -193,7 +206,7 @@ Most of these lessons came from bugs and refactors, not tutorials.
 
 * Advanced security hardening
 * Performance optimization
-* WebSockets / real-time infra
+* WebSockets / real-time infrastructure
 
 These were deferred to keep the project focused and explainable.
 
