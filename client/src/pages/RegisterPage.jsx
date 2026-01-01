@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../app/AuthContext";
 import { api } from "../shared/lib/api";
-import { Button } from "../shared/ui/Button";
 
 export const RegisterPage = () => {
   const [username, setUsername] = useState("");
@@ -38,7 +37,6 @@ export const RegisterPage = () => {
       if (serverError === "Duplicate Email") {
         setError("This email is already registered. Please log in instead.");
       } else {
-        
         setError(serverError || "Failed to create account. Try again.");
       }
     } finally {
@@ -47,26 +45,31 @@ export const RegisterPage = () => {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-[80vh] bg-gray-50 px-4">
-      <div className="w-full max-w-md bg-white p-8 rounded-xl shadow-lg border border-gray-100">
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Create Account</h1>
-          <p className="text-gray-500 mt-2">Join StockTicker Pro today</p>
+    <div className="relative flex items-center justify-center min-h-[85vh] overflow-hidden px-4">
+      {/* BACKGROUND GLOWS - Updated to Orange and Emerald */}
+      <div className="absolute top-1/4 left-1/4 w-[400px] h-[400px] bg-[#ffaa00]/10 blur-[120px] rounded-full -z-10 pointer-events-none" />
+      <div className="absolute bottom-1/4 right-1/4 w-[400px] h-[400px] bg-[#00cc88]/10 blur-[120px] rounded-full -z-10 pointer-events-none" />
+
+      {/* Main Container: Translucent 385a94 background */}
+      <div className="w-full max-w-md bg-[#385a94]/15 backdrop-blur-2xl p-8 rounded-[2.5rem] border border-white/10 shadow-2xl relative">
+        
+        <div className="text-center mb-10">
+          <h1 className="text-4xl font-black text-white tracking-tighter">
+            Create <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#ffaa00] to-[#00cc88]">Account</span>
+          </h1>
+          <p className="text-gray-400 mt-2 font-medium tracking-wide">Join StockTicker Pro today</p>
         </div>
 
         {error && (
-          <div className="mb-6 p-4 bg-red-50 border-l-4 border-red-500 text-red-700 text-sm rounded-r">
-            <p className="font-medium">Error</p>
-            <p>{error}</p>
+          <div className="mb-6 p-4 bg-red-500/10 border border-red-500/20 text-red-400 text-xs font-bold rounded-2xl animate-in fade-in slide-in-from-top-2">
+            <p className="uppercase tracking-widest mb-1">Error</p>
+            <p className="font-medium normal-case">{error}</p>
           </div>
         )}
 
         <form onSubmit={handleSubmit} className="space-y-6">
-          <div>
-            <label
-              htmlFor="username"
-              className="block text-sm font-medium text-gray-700 mb-1"
-            >
+          <div className="space-y-2">
+            <label htmlFor="username" className="block text-xs font-black text-gray-500 uppercase tracking-widest ml-1">
               Full Name
             </label>
             <input
@@ -74,17 +77,14 @@ export const RegisterPage = () => {
               type="text"
               required
               placeholder="John Doe"
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition-all"
+              className="w-full px-6 py-3 bg-black/20 border border-white/10 rounded-full text-white placeholder:text-gray-600 focus:outline-none focus:ring-2 focus:ring-[#ffaa00]/40 transition-all font-medium"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
             />
           </div>
 
-          <div>
-            <label
-              htmlFor="email"
-              className="block text-sm font-medium text-gray-700 mb-1"
-            >
+          <div className="space-y-2">
+            <label htmlFor="email" className="block text-xs font-black text-gray-500 uppercase tracking-widest ml-1">
               Email Address
             </label>
             <input
@@ -92,17 +92,14 @@ export const RegisterPage = () => {
               type="email"
               required
               placeholder="you@example.com"
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition-all"
+              className="w-full px-6 py-3 bg-black/20 border border-white/10 rounded-full text-white placeholder:text-gray-600 focus:outline-none focus:ring-2 focus:ring-[#00cc88]/40 transition-all font-medium"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
             />
           </div>
 
-          <div>
-            <label
-              htmlFor="password"
-              className="block text-sm font-medium text-gray-700 mb-1"
-            >
+          <div className="space-y-2">
+            <label htmlFor="password" className="block text-xs font-black text-gray-500 uppercase tracking-widest ml-1">
               Password
             </label>
             <input
@@ -111,25 +108,31 @@ export const RegisterPage = () => {
               required
               placeholder="Min 6 characters"
               minLength={6}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition-all"
+              className="w-full px-6 py-3 bg-black/20 border border-white/10 rounded-full text-white placeholder:text-gray-600 focus:outline-none focus:ring-2 focus:ring-[#ffaa00]/40 transition-all font-medium"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
             />
           </div>
 
-          <Button type="submit" isLoading={isLoading} className="w-full py-3">
-            Sign Up
-          </Button>
+          <button 
+            type="submit" 
+            disabled={isLoading}
+            className="cursor-pointer w-full py-4 bg-gradient-to-r from-[#ffaa00] to-[#00cc88] text-black font-black uppercase text-xs tracking-[0.2em] rounded-full hover:scale-[1.02] active:scale-95 transition-all shadow-lg shadow-[#ffaa00]/20 disabled:opacity-50 disabled:hover:scale-100"
+          >
+            {isLoading ? "Creating Account..." : "Sign Up"}
+          </button>
         </form>
 
-        <div className="mt-6 text-center text-sm text-gray-600">
-          Already have an account?{" "}
-          <Link
-            to="/login"
-            className="font-semibold text-blue-600 hover:underline"
-          >
-            Log in
-          </Link>
+        <div className="mt-8 text-center">
+          <p className="text-sm text-gray-500 font-medium">
+            Already have an account?{" "}
+            <Link
+              to="/login"
+              className="font-black text-[#00cc88] hover:text-[#00ffaa] transition-colors uppercase text-xs tracking-widest ml-1"
+            >
+              Log in
+            </Link>
+          </p>
         </div>
       </div>
     </div>

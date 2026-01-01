@@ -49,18 +49,18 @@ const WatchlistRow = ({ item, watchlistId }) => {
   const isPositive = change >= 0;
 
   return (
-    <tr className="border-b last:border-0 hover:bg-gray-50 transition-colors">
-      <td className="py-4 px-2 font-medium">{stock.symbol}</td>
-      <td className="py-4 px-2">${current.toFixed(2)}</td>
+    <tr className="border-b border-white/5 last:border-0 hover:bg-white/5 transition-colors">
+      <td className="py-4 px-2 font-bold text-white">{stock.symbol}</td>
+      <td className="py-4 px-2 font-mono text-gray-300">₹{current.toFixed(2)}</td>
       <td
-        className={`py-4 px-2 font-bold ${
-          isPositive ? "text-green-600" : "text-red-600"
+        className={`py-4 px-2 font-black ${
+          isPositive ? "text-[#A3FFEA]" : "text-red-400"
         }`}
       >
         {isPositive ? "+" : ""}
         {change.toFixed(2)}%
       </td>
-      <td className="py-4 px-2 text-gray-400 text-sm">
+      <td className="py-4 px-2 text-gray-500 text-xs font-bold uppercase tracking-widest">
         {new Date(item.addedAt).toLocaleDateString()}
       </td>
       <td className="py-4 px-2 text-right">
@@ -72,7 +72,7 @@ const WatchlistRow = ({ item, watchlistId }) => {
             })
           }
           disabled={removeMutation.isPending}
-          className="text-red-500 hover:text-red-700 text-sm font-medium px-3 py-1 border border-red-200 rounded hover:bg-red-50 transition disabled:opacity-50"
+          className="cursor-pointer text-red-400 hover:text-red-300 text-xs font-black uppercase tracking-widest px-4 py-1.5 border border-red-400/20 rounded-full hover:bg-red-400/10 transition-all disabled:opacity-50"
         >
           {removeMutation.isPending ? "..." : "Remove"}
         </button>
@@ -83,16 +83,13 @@ const WatchlistRow = ({ item, watchlistId }) => {
 
 export const WatchlistPage = () => {
   const { data: watchlists, isLoading, error } = useWatchlists();
-
   const createMutation = useCreateWatchlist();
   const deleteMutation = useDeleteWatchlist();
-
   const [newListName, setNewListName] = useState("");
 
   const handleCreate = (e) => {
     e.preventDefault();
     if (!newListName.trim()) return;
-
     createMutation.mutate(newListName, {
       onSuccess: () => setNewListName(""),
     });
@@ -105,33 +102,39 @@ export const WatchlistPage = () => {
   };
 
   if (isLoading)
-    return <div className="text-center p-10">Loading portfolios...</div>;
+    return <div className="text-center p-20 text-gray-400 animate-pulse font-bold tracking-widest uppercase">Loading portfolios...</div>;
 
   if (error)
     return (
-      <div className="text-center p-10 text-red-500 bg-red-50 border border-red-200 rounded mx-6">
-        <h3 className="font-bold text-xl mb-2">Failed to load watchlists</h3>
-        <p className="font-mono text-sm mb-4">{error.message}</p>
+      <div className="text-center p-10 bg-red-500/5 border border-red-500/20 rounded-3xl mx-6 mt-10">
+        <h3 className="font-black text-red-400 text-xl mb-2 tracking-tight">Failed to load watchlists</h3>
+        <p className="font-mono text-xs text-red-300/60 uppercase">{error.message}</p>
       </div>
     );
 
   return (
-    <div className="p-10 max-w-7xl mx-auto min-h-screen bg-gray-50/50">
-      <div className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
-        <h1 className="text-4xl font-extrabold text-gray-900 tracking-tight">My Watchlists</h1>
+    <div className="relative p-6 md:p-10 max-w-7xl mx-auto min-h-screen">
+      
+      <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-[#ffd500]/5 blur-[120px] rounded-full -z-10 pointer-events-none" />
+      <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-[#e6b3ff]/5 blur-[120px] rounded-full -z-10 pointer-events-none" />
 
-        <form onSubmit={handleCreate} className="flex gap-2 w-full md:w-auto">
+      <div className="flex flex-col lg:flex-row justify-between items-center mb-12 gap-8">
+        <h1 className="text-4xl font-black text-white tracking-tighter">
+          My <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#ffd500] to-[#e6b3ff]">Watchlists</span>
+        </h1>
+
+        <form onSubmit={handleCreate} className="flex gap-3 w-full lg:w-auto">
           <input
             type="text"
             placeholder="New List Name..."
             value={newListName}
             onChange={(e) => setNewListName(e.target.value)}
-            className="px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500 w-full md:w-64"
+            className="bg-white/5 border border-white/10 text-white px-6 py-3 rounded-full focus:outline-none focus:ring-2 focus:ring-[#e6b3ff]/40 w-full lg:w-72 font-medium transition-all"
           />
           <button
             type="submit"
             disabled={createMutation.isPending || !newListName.trim()}
-            className="bg-blue-600 text-white px-4 py-2 rounded font-medium hover:bg-blue-700 disabled:opacity-50 transition-colors whitespace-nowrap"
+            className="cursor-pointer bg-gradient-to-r from-[#ffd500] to-[#e6b3ff] text-black font-black px-8 py-3 rounded-full hover:scale-105 disabled:opacity-30 disabled:hover:scale-100 transition-all whitespace-nowrap uppercase text-xs tracking-widest shadow-lg shadow-[#ffd500]/10"
           >
             {createMutation.isPending ? "Creating..." : "Create List"}
           </button>
@@ -139,26 +142,29 @@ export const WatchlistPage = () => {
       </div>
 
       {watchlists?.length > 0 ? (
-        <div className="space-y-8">
+        <div className="space-y-12">
           {watchlists.map((list) => (
             <div
               key={list.id}
-              className="border rounded-lg p-6 bg-white shadow-sm relative group"
+              className="border border-white/10 rounded-[2rem] p-8 bg-[#385a94]/10 backdrop-blur-xl relative group overflow-hidden"
             >
-              <div className="flex justify-between items-center mb-4 border-b pb-4">
-                <div className="flex items-baseline gap-3">
-                  <h2 className="text-2xl font-bold text-gray-800">
+              
+              <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#ffd500] to-[#e6b3ff] opacity-40" />
+
+              <div className="flex justify-between items-center mb-8 pb-6 border-b border-white/10">
+                <div className="flex items-baseline gap-4">
+                  <h2 className="text-3xl font-black text-white tracking-tight">
                     {list.name}
                   </h2>
-                  <span className="text-gray-500 text-sm">
-                    {list.stocks?.length || 0} stocks
+                  <span className="bg-white/5 px-3 py-1 rounded-full text-gray-400 text-[10px] font-black uppercase tracking-widest border border-white/5">
+                    {list.stocks?.length || 0} Assets
                   </span>
                 </div>
 
                 <button
                   onClick={() => handleDelete(list.id)}
                   disabled={deleteMutation.isPending}
-                  className="text-red-500 hover:text-red-700 hover:bg-red-50 px-3 py-1 rounded text-sm font-medium transition-colors border border-transparent hover:border-red-200"
+                  className="cursor-pointer text-red-500 hover:text-white hover:bg-red-500/20 px-4 py-2 rounded-full text-[10px] font-black tracking-widest uppercase transition-all border border-red-500/20"
                 >
                   {deleteMutation.isPending ? "Deleting..." : "Delete List"}
                 </button>
@@ -167,18 +173,16 @@ export const WatchlistPage = () => {
               {list.stocks && list.stocks.length > 0 ? (
                 <div className="overflow-x-auto">
                   <table className="min-w-full text-left">
-                    <thead className="text-gray-500 text-sm uppercase tracking-wider">
+                    <thead className="text-gray-500 text-[10px] font-black uppercase tracking-[0.2em]">
                       <tr>
-                        <th className="py-2 font-semibold">Symbol</th>
-                        <th className="py-2 font-semibold">Price</th>
-                        <th className="py-2 font-semibold">Change</th>
-                        <th className="py-2 font-semibold">Added At</th>
-                        <th className="py-2 text-right font-semibold">
-                          Actions
-                        </th>
+                        <th className="pb-4 px-2">Symbol</th>
+                        <th className="pb-4 px-2">Price</th>
+                        <th className="pb-4 px-2">24h Change</th>
+                        <th className="pb-4 px-2">Added</th>
+                        <th className="pb-4 text-right">Actions</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-gray-100">
+                    <tbody className="divide-y divide-white/5">
                       {list.stocks.map((item) => (
                         <WatchlistRow
                           key={item.stock.id}
@@ -190,20 +194,20 @@ export const WatchlistPage = () => {
                   </table>
                 </div>
               ) : (
-                <div className="text-gray-400 italic py-8 bg-gray-50 rounded text-center border border-dashed">
-                  No stocks in this list yet. Go to the Dashboard to add some!
+                <div className="text-gray-500 font-bold italic py-12 bg-black/20 rounded-2xl text-center border border-dashed border-white/5">
+                  Your portfolio is empty. Add stocks from the market overview.
                 </div>
               )}
             </div>
           ))}
         </div>
       ) : (
-        <div className="text-center py-20 bg-gray-50 rounded border border-dashed">
-          <h3 className="text-xl font-medium text-gray-700 mb-2">
+        <div className="text-center py-24 bg-white/5 rounded-[3rem] border border-dashed border-white/10">
+          <h3 className="text-2xl font-black text-gray-400 mb-2 uppercase tracking-tighter">
             No Watchlists Found
           </h3>
-          <p className="text-gray-500 mb-4">
-            Create your first watchlist above to get started.
+          <p className="text-gray-600 font-medium">
+            Start by creating your first list to track your favorite assets.
           </p>
         </div>
       )}
