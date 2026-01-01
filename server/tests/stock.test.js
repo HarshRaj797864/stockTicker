@@ -19,7 +19,7 @@ describe('GET /api/stocks', () => {
         expect(response.body.meta).toMatchObject({
             page: 1,
             limit: 2,
-            totalCount: expect.any(Number)
+            totalCount: expect.any(Number),
         });
     });
     it("should return AAPL stock object", async () => {

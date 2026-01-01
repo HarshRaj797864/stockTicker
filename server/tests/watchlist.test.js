@@ -101,7 +101,7 @@ describe("POST /api/watchlists/:id/stocks", () => {
       .send({ ticker: "FAKE" });
 
     expect(res.status).toBe(404);
-    expect(res.body.error).toMatch(/Stock not found/i);
+    expect(res.body.error).toMatch(/Stock.*not found/i);
   });
 
   it("should fail if user tries to modify someone else's list", async () => {

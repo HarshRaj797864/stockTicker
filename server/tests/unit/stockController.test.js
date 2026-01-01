@@ -34,6 +34,7 @@ describe("stockController unit tests", () => {
     expect(stockService.findAllStocks).toHaveBeenCalledWith({
       page: 2,
       limit: 10,
+      search: "",
     });
   });
 });
