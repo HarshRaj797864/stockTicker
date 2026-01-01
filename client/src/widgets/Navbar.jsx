@@ -1,6 +1,7 @@
 import React from "react";
 import { NavLink, Link } from "react-router-dom";
 import { useAuth } from "../app/AuthContext";
+import { Github } from "lucide-react";
 
 export const Navbar = () => {
   const { user, logout } = useAuth();
@@ -25,6 +26,18 @@ export const Navbar = () => {
         </Link>
 
         <div className="flex items-center gap-2 md:gap-4">
+          {!user && (
+            <a
+              href="https://github.com/HarshRaj797864/stockTicker"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-pink-500 hover:text-pink-400 hover:!bg-pink-500/10 !bg-transparent p-2 rounded-full transition cursor-pointer"
+              aria-label="GitHub Repository"
+            >
+              <Github className="w-6 h-6" />
+            </a>
+          )}
+
           <NavLink to="/" className={navLinkClass}>
             Home
           </NavLink>
