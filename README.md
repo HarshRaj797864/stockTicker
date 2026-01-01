@@ -165,7 +165,8 @@ UI styling, component internals, and snapshots were intentionally not tested.
 
 ## Deployment
 
-* Backend deployed on **Render (Platform as a Service)**
+* Backend deployed on **Railway (Platform as a Service)**
+* Postgres Database deployed on **Supabase**
 * Environment variables configured for:
 
   * Database connection
