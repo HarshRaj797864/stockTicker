@@ -26,11 +26,8 @@ export const addStockToWatchlist = async ({ userId, watchlistId, symbol }) => {
     where: { id: watchlistId },
   });
 
-  if (!watchlist) {
+  if (!watchlist || watchlist.userId !== userId) {
     throw new NotFoundError("Watchlist not found");
-  }
-  if (watchlist.userId !== userId) {
-    throw new Error("Unauthorized access to this watchlist");
   }
 
   const stock = await prisma.stock.findUnique({

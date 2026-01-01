@@ -25,7 +25,7 @@ const getAllStocks = asyncHandler(async (req, res, next) => {
   res.status(200).json({
     data: stocks,
     meta: {
-      total,
+      totalCount: total,
       page,
       limit,
       totalPages: Math.ceil(total / limit),
