@@ -8,35 +8,35 @@ export const HomePage = () => {
 
   if (!user) {
     return (
-      <div className="relative flex flex-col items-center justify-center min-h-[70vh] text-center space-y-8 overflow-hidden">
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-purple-600/20 blur-[100px] rounded-full -z-10 pointer-events-none" />
+      <div className="relative flex flex-col items-center justify-center min-h-[80vh] text-center space-y-8 overflow-hidden px-6">
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] md:w-[500px] h-[300px] md:h-[500px] bg-purple-600/20 blur-[80px] md:blur-[100px] rounded-full -z-10 pointer-events-none" />
 
-        <h1 className="text-6xl md:text-7xl font-extrabold tracking-tight text-gray-300 drop-shadow-sm">
+        <h1 className="text-4xl sm:text-6xl md:text-7xl font-extrabold tracking-tight text-gray-300 drop-shadow-sm">
           Master the Market with <br />
           <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-pink-500 to-yellow-400">
             StockTicker
           </span>
         </h1>
 
-        <p className="text-xl text-[#A3FFEA] max-w-2xl leading-relaxed font-medium tracking-wide">
+        <p className="text-base sm:text-lg md:text-xl text-[#A3FFEA] max-w-2xl leading-relaxed font-medium tracking-wide">
           Real-time tracking, smart watchlists, and powerful analytics for the
           modern investor.
         </p>
 
-        <div className="flex flex-col sm:flex-row gap-4 pt-4">
-          <Link to="/register">
+        <div className="flex flex-col sm:flex-row gap-4 pt-4 w-full sm:w-auto">
+          <Link to="/register" className="w-full sm:w-auto">
             <Button
               size="lg"
-              className="cursor-pointer !bg-gray-700 !text-white hover:!bg-gray-600 transition-all rounded-lg px-8 py-4 font-bold text-lg"
+              className="w-full sm:w-auto cursor-pointer !bg-gray-700 !text-white hover:!bg-gray-600 transition-all rounded-lg px-8 py-4 font-bold text-lg"
             >
               Get Started
             </Button>
           </Link>
 
-          <Link to="/login">
+          <Link to="/login" className="w-full sm:w-auto">
             <Button
               size="lg"
-              className="cursor-pointer !bg-gray-700 !text-white hover:!bg-gray-600 transition-all rounded-lg px-8 py-4 font-bold text-lg"
+              className="w-full sm:w-auto cursor-pointer !bg-gray-700 !text-white hover:!bg-gray-600 transition-all rounded-lg px-8 py-4 font-bold text-lg"
             >
               Login
             </Button>
@@ -47,19 +47,19 @@ export const HomePage = () => {
   }
 
   return (
-    <div className="relative space-y-8 animate-in fade-in duration-500 min-h-[60vh] py-4">
-      <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-blue-600/10 blur-[120px] rounded-full -z-10 pointer-events-none" />
-      <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-pink-600/10 blur-[120px] rounded-full -z-10 pointer-events-none" />
+    <div className="relative space-y-8 animate-in fade-in duration-500 min-h-[60vh] py-4 px-4 md:px-0">
+      <div className="absolute top-0 right-0 w-[300px] md:w-[400px] h-[300px] md:h-[400px] bg-blue-600/10 blur-[80px] md:blur-[120px] rounded-full -z-10 pointer-events-none" />
+      <div className="absolute bottom-0 left-0 w-[300px] md:w-[400px] h-[300px] md:h-[400px] bg-pink-600/10 blur-[80px] md:blur-[120px] rounded-full -z-10 pointer-events-none" />
 
       <div className="flex items-end justify-between border-b border-white/10 pb-6">
         <div>
-          <h1 className="text-4xl font-extrabold text-white tracking-tight">
+          <h1 className="text-3xl md:text-4xl font-extrabold text-white tracking-tight">
             Welcome back, <br className="md:hidden" />
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-pink-500 to-yellow-400">
               {user.name || "Trader"}
             </span>
           </h1>
-          <p className="text-gray-400 mt-2 font-medium">
+          <p className="text-gray-400 mt-2 font-medium text-sm md:text-base">
             Here's your market snapshot.
           </p>
         </div>
@@ -74,7 +74,7 @@ export const HomePage = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
         {[
           {
             name: "NIFTY 50",
@@ -97,13 +97,13 @@ export const HomePage = () => {
         ].map((index) => (
           <div
             key={index.name}
-            className="relative group overflow-hidden p-6 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md hover:bg-white/10 transition-all cursor-pointer"
+            className="relative group overflow-hidden p-5 md:p-6 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md hover:bg-white/10 transition-all cursor-pointer"
           >
             <div className="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-transparent via-white/20 to-transparent group-hover:via-pink-500/50 transition-all"></div>
-            <div className="text-gray-400 text-sm font-bold tracking-wider">
+            <div className="text-gray-400 text-xs md:text-sm font-bold tracking-wider">
               {index.name}
             </div>
-            <div className="text-3xl font-bold text-white mt-2">
+            <div className="text-2xl md:text-3xl font-bold text-white mt-2">
               {index.value}
             </div>
             <div
@@ -120,13 +120,13 @@ export const HomePage = () => {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mt-8">
         <div className="lg:col-span-2 space-y-4">
           <div className="flex items-center justify-between px-1">
-            <h2 className="text-xl font-bold text-white flex items-center gap-2">
+            <h2 className="text-lg md:text-xl font-bold text-white flex items-center gap-2">
               <span className="w-2 h-6 bg-pink-500 rounded-full"></span>
               Top Watchlist
             </h2>
             <Link
               to="/watchlists"
-              className="text-sm font-bold text-pink-400 hover:text-pink-300 transition-colors"
+              className="text-xs md:text-sm font-bold text-pink-400 hover:text-pink-300 transition-colors"
             >
               VIEW ALL &rarr;
             </Link>
@@ -155,11 +155,11 @@ export const HomePage = () => {
             ].map((stock, i) => (
               <div
                 key={stock.symbol}
-                className="flex items-center justify-between p-5 border-b border-white/5 last:border-0 hover:bg-white/5 transition-colors group"
+                className="flex items-center justify-between p-4 md:p-5 border-b border-white/5 last:border-0 hover:bg-white/5 transition-colors group"
               >
-                <div className="flex items-center gap-4">
+                <div className="flex items-center gap-3 md:gap-4">
                   <div
-                    className={`w-10 h-10 rounded-xl flex items-center justify-center font-bold text-sm shadow-lg ${
+                    className={`w-8 h-8 md:w-10 md:h-10 rounded-xl flex items-center justify-center font-bold text-xs md:text-sm shadow-lg ${
                       i === 0
                         ? "bg-gradient-to-br from-blue-500 to-blue-700 text-white"
                         : "bg-gray-800 text-gray-400"
@@ -168,14 +168,16 @@ export const HomePage = () => {
                     {stock.symbol[0]}
                   </div>
                   <div>
-                    <div className="font-bold text-white group-hover:text-pink-400 transition-colors">
+                    <div className="font-bold text-white text-sm md:text-base group-hover:text-pink-400 transition-colors">
                       {stock.symbol}
                     </div>
-                    <div className="text-xs text-gray-500 font-bold">NSE</div>
+                    <div className="text-[10px] md:text-xs text-gray-500 font-bold">
+                      NSE
+                    </div>
                   </div>
                 </div>
                 <div className="text-right">
-                  <div className="font-mono text-white text-lg">
+                  <div className="font-mono text-white text-base md:text-lg">
                     ₹{stock.price}
                   </div>
                   <div
@@ -199,12 +201,14 @@ export const HomePage = () => {
             </h3>
             <div className="flex items-center justify-between relative z-10">
               <div>
-                <div className="text-2xl font-bold text-white">Zomato</div>
+                <div className="text-xl md:text-2xl font-bold text-white">
+                  Zomato
+                </div>
                 <div className="text-xs text-gray-500 font-medium">
                   Food Delivery
                 </div>
               </div>
-              <div className="bg-[#A3FFEA] text-black px-3 py-1 rounded-lg text-sm font-extrabold shadow-[0_0_15px_rgba(163,255,234,0.3)]">
+              <div className="bg-[#A3FFEA] text-black px-3 py-1 rounded-lg text-xs md:text-sm font-extrabold shadow-[0_0_15px_rgba(163,255,234,0.3)]">
                 +8.4%
               </div>
             </div>

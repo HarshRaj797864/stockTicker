@@ -31,7 +31,7 @@ export const DashboardPage = () => {
         </div>
       </div>
     );
-  
+
   if (error)
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
@@ -42,14 +42,17 @@ export const DashboardPage = () => {
     );
 
   return (
-    <div className="relative p-6 min-h-screen">
-      {/* BACKGROUND AMBIENT GLOWS */}
+
+    <div className="relative p-4 md:p-6 min-h-screen overflow-hidden">
+      
+      
       <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-blue-600/5 blur-[120px] rounded-full -z-10 pointer-events-none" />
       <div className="absolute bottom-1/4 right-0 w-[500px] h-[500px] bg-pink-600/5 blur-[120px] rounded-full -z-10 pointer-events-none" />
 
-      {/* HEADER SECTION */}
-      <div className="flex flex-col md:flex-row justify-between items-center mb-10 gap-6">
-        <h1 className="text-4xl font-extrabold text-white tracking-tight">
+      
+      <div className="flex flex-col md:flex-row justify-between items-center mb-6 md:mb-10 gap-4 md:gap-6">
+        
+        <h1 className="text-3xl md:text-4xl font-extrabold text-white tracking-tight text-center md:text-left">
           Market <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-pink-500 to-yellow-400">Overview</span>
         </h1>
 
@@ -58,8 +61,7 @@ export const DashboardPage = () => {
         </div>
       </div>
 
-      {/* STOCKS GRID */}
-      <div className="grid gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-3 mb-12">
+      <div className="grid gap-4 md:gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-3 mb-12">
         {stocks.length > 0 ? (
           stocks.map((stock) => {
             const change =
@@ -69,9 +71,8 @@ export const DashboardPage = () => {
             return (
               <div
                 key={stock.id}
-                className="group p-6 border border-white/10 rounded-3xl transition-all bg-white/5 backdrop-blur-md hover:bg-white/10 hover:border-white/20 relative overflow-hidden"
+                className="group p-5 md:p-6 border border-white/10 rounded-3xl transition-all bg-white/5 backdrop-blur-md hover:bg-white/10 hover:border-white/20 relative overflow-hidden"
               >
-                {/* Hover Gradient Accent Line */}
                 <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-400 via-pink-500 to-yellow-400 opacity-0 group-hover:opacity-40 transition-opacity" />
 
                 <div className="flex justify-between items-start">
@@ -125,12 +126,12 @@ export const DashboardPage = () => {
         )}
       </div>
 
-      {/* SYMMETRICAL GRADIENT PAGINATION */}
-      <div className="flex justify-center items-center gap-6 pb-10">
+      <div className="flex flex-wrap justify-center items-center gap-4 md:gap-6 pb-10">
         <button
           onClick={() => setPage((old) => Math.max(old - 1, 1))}
           disabled={page === 1}
-          className="cursor-pointer px-8 py-2 bg-gradient-to-r from-blue-500 via-pink-500 to-yellow-500 text-white font-black rounded-full disabled:from-gray-800 disabled:to-gray-900 disabled:text-gray-600 disabled:opacity-40 disabled:cursor-not-allowed hover:scale-105 transition-all text-sm uppercase tracking-widest shadow-lg shadow-blue-500/10"
+          
+          className="cursor-pointer px-6 md:px-8 py-2 bg-gradient-to-r from-blue-500 via-pink-500 to-yellow-500 text-white font-black rounded-full disabled:from-gray-800 disabled:to-gray-900 disabled:text-gray-600 disabled:opacity-40 disabled:cursor-not-allowed hover:scale-105 transition-all text-xs md:text-sm uppercase tracking-widest shadow-lg shadow-blue-500/10"
         >
           Previous
         </button>
@@ -148,7 +149,7 @@ export const DashboardPage = () => {
             }
           }}
           disabled={isPlaceholderData || page >= meta.totalPages}
-          className="cursor-pointer px-8 py-2 bg-gradient-to-r from-blue-500 via-pink-500 to-yellow-500 text-white font-black rounded-full disabled:from-gray-800 disabled:to-gray-900 disabled:text-gray-600 disabled:opacity-40 disabled:cursor-not-allowed hover:scale-105 transition-all text-sm uppercase tracking-widest shadow-lg shadow-pink-500/20"
+          className="cursor-pointer px-6 md:px-8 py-2 bg-gradient-to-r from-blue-500 via-pink-500 to-yellow-500 text-white font-black rounded-full disabled:from-gray-800 disabled:to-gray-900 disabled:text-gray-600 disabled:opacity-40 disabled:cursor-not-allowed hover:scale-105 transition-all text-xs md:text-sm uppercase tracking-widest shadow-lg shadow-pink-500/20"
         >
           Next
         </button>
