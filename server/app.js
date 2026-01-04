@@ -10,7 +10,15 @@ import { watchlistRouter } from './routes/watchlists.js';
 const app = express(); 
 
 // global middlewares:- they run for every incoming request before it reaches the specific routes
-app.use(cors()); // allows react to communicate with express
+app.use(cors({
+    origin: [
+        "http://localhost:5173",                 
+        "https://stock-ticker-eta.vercel.app",   
+        process.env.FRONTEND_URL                 
+    ],
+    credentials: true, 
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
+}));
 app.use(express.json()); // Enables the app to read JSON data sent in request object
 
 app.use("/api/watchlists", watchlistRouter);
