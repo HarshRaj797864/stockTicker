@@ -12,7 +12,8 @@ const app = express();
 // global middlewares:- they run for every incoming request before it reaches the specific routes
 app.use(cors({
     origin: [
-        "http://localhost:5173",                 
+        "http://localhost:5173",   
+        "http://127.0.0.1:5173",              
         "https://stock-ticker-eta.vercel.app",   
         process.env.FRONTEND_URL                 
     ],
