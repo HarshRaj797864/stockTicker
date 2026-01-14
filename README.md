@@ -7,7 +7,7 @@ This project focuses on **ownership and correctness**, not feature bloat or UI p
 
 ---
 
-![Home Page Screenshot](docs/images/dashboard.png)
+![Home Page Screenshot](docs/img/dashboard.png)
 
 
 ## Why This Project
