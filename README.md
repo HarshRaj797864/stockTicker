@@ -7,6 +7,10 @@ This project focuses on **ownership and correctness**, not feature bloat or UI p
 
 ---
 
+<p align="center">
+  <img src="docs/images/home.png" width="800" />
+</p>
+
 ## Why This Project
 
 I built **StockTicker** to move beyond isolated frontend or backend demos and work on a single system where:
