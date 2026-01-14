@@ -5,6 +5,7 @@ import { NotFoundError, errorHandler } from './middleware/errorHandler.js';
 import { stocksRouter } from './routes/stocks.js';
 import { authRouter } from './routes/auth.js';
 import { watchlistRouter } from './routes/watchlists.js';
+import { latencyLogger } from './middleware/latency.js';
 
 // will start a new express server, that is essentially wrapping the http.createServer 
 const app = express(); 
@@ -21,7 +22,7 @@ app.use(cors({
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
 }));
 app.use(express.json()); // Enables the app to read JSON data sent in request object
-
+app.use(latencyLogger);
 app.use("/api/watchlists", watchlistRouter);
 app.use("/api/stocks", stocksRouter);
 app.use("/api/auth", authRouter);

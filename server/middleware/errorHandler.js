@@ -17,8 +17,9 @@ export class InvalidNumberError extends Error {
 
 export const errorHandler = (err, req, res, next) => {
     if (process.env.NODE_ENV !== 'test') console.error(err.stack);
-    const message = err.message || "Internal Server Error";
+    let message = err.message || "Internal Server Error";
     const statusCode = err.statusCode || 500;
+    if(statusCode == 500) message = "Something went wrong"
     res.status(statusCode).json({error: message});
 }
 
