@@ -7,9 +7,8 @@ This project focuses on **ownership and correctness**, not feature bloat or UI p
 
 ---
 
-<p align="center">
-  <img src="docs/images/home.png" width="800" />
-</p>
+![Home Page Screenshot](docs/images/dashboard.png)
+
 
 ## Why This Project
 
