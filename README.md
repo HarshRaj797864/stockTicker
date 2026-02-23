@@ -45,7 +45,7 @@ The goal was not completeness, but **depth and explainability**.
 
 * **Finnhub API** — real stock market data
 * **Vercel** — frontend deployment
-* **Railway (PaaS)** — backend deployment
+* **Microsoft Azure (PaaS)** — backend deployment
 * **Supabase** — PostgreSQL database
 
 ### Testing
@@ -60,7 +60,7 @@ The goal was not completeness, but **depth and explainability**.
 ## Live Deployment
 
 * **Frontend:** [https://stock-ticker-eta.vercel.app/](https://stock-ticker-eta.vercel.app/)
-* **Backend API:** [https://stockticker-api-production.up.railway.app/](https://stockticker-api-production.up.railway.app/)
+* **Backend API:** [https://stockticker-api-harsh-fbh8heb7dxc0cvcn.southeastasia-01.azurewebsites.net](https://stockticker-api-harsh-fbh8heb7dxc0cvcn.southeastasia-01.azurewebsites.net)
 * **Database:** Supabase (PostgreSQL)
 
 ---
@@ -181,7 +181,7 @@ UI styling, component internals, and snapshot tests were intentionally not inclu
 ## Deployment
 
 * Frontend deployed on **Vercel**
-* Backend deployed on **Railway**
+* Backend deployed on **Microsoft Azure**
 * PostgreSQL hosted on **Supabase**
 * Environment variables configured for:
 
