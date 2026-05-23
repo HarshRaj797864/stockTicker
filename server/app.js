@@ -3,7 +3,6 @@ import cors from 'cors';
 import {healthRouter} from './routes/index.js';
 import { NotFoundError, errorHandler } from './middleware/errorHandler.js';
 import { stocksRouter } from './routes/stocks.js';
-import { authRouter } from './routes/auth.js';
 import { watchlistRouter } from './routes/watchlists.js';
 import { latencyLogger } from './middleware/latency.js';
 
@@ -25,7 +24,6 @@ app.use(express.json()); // Enables the app to read JSON data sent in request ob
 app.use(latencyLogger);
 app.use("/api/watchlists", watchlistRouter);
 app.use("/api/stocks", stocksRouter);
-app.use("/api/auth", authRouter);
 app.use("/api", healthRouter);
 app.use((req, res, next) => {
     next(new NotFoundError('Not Found'));
