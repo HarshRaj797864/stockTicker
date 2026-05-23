@@ -1,0 +1,94 @@
+services:
+  postgres:
+    image: postgres:16.2-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: stock
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-stockpass}
+      POSTGRES_DB: stockticker
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U stock -d stockticker"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks:
+      - stocknet
+
+  redis:
+    image: redis:7.2-alpine
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    networks:
+      - stocknet
+
+  migrator:
+    build:
+      context: ./server
+      target: builder
+    command: npx prisma migrate deploy
+    environment:
+      DATABASE_URL: postgresql://stock:${POSTGRES_PASSWORD:-stockpass}@postgres:5432/stockticker?schema=public
+      DIRECT_URL: postgresql://stock:${POSTGRES_PASSWORD:-stockpass}@postgres:5432/stockticker?schema=public
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - stocknet
+
+  api:
+    build:
+      context: ./server
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgresql://stock:${POSTGRES_PASSWORD:-stockpass}@postgres:5432/stockticker?schema=public
+      DIRECT_URL: postgresql://stock:${POSTGRES_PASSWORD:-stockpass}@postgres:5432/stockticker?schema=public
+      REDIS_URL: redis://redis:6379
+      JWT_SECRET: ${JWT_SECRET:-dev-secret-change-me}
+      FRONTEND_URL: ${FRONTEND_URL:-http://localhost:5173}
+      FINNHUB_API_KEY: ${FINNHUB_API_KEY:-}
+      PORT: 10000
+      NODE_ENV: production
+    ports:
+      - "10000:10000"
+    depends_on:
+      migrator:
+        condition: service_completed_successfully
+      redis:
+        condition: service_healthy
+    networks:
+      - stocknet
+
+  worker:
+    build:
+      context: ./server
+    command: node worker/index.js
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgresql://stock:${POSTGRES_PASSWORD:-stockpass}@postgres:5432/stockticker?schema=public
+      DIRECT_URL: postgresql://stock:${POSTGRES_PASSWORD:-stockpass}@postgres:5432/stockticker?schema=public
+      REDIS_URL: redis://redis:6379
+      FINNHUB_API_KEY: ${FINNHUB_API_KEY:-}
+      MOCK_PRICES: ${MOCK_PRICES:-true}
+      POLL_INTERVAL_MS: ${POLL_INTERVAL_MS:-10000}
+      WORKER_TICKERS: ${WORKER_TICKERS:-AAPL,MSFT,GOOGL,AMZN,TSLA,NVDA,META}
+      NODE_ENV: production
+    depends_on:
+      migrator:
+        condition: service_completed_successfully
+      redis:
+        condition: service_healthy
+    networks:
+      - stocknet
+
+volumes:
+  postgres-data:
+
+networks:
+  stocknet:
+    driver: bridge
