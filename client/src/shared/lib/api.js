@@ -1,7 +1,7 @@
 import axios from "axios";
 
-const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:10000";
-const AUTH_BASE_URL = import.meta.env.VITE_AUTH_URL || "http://localhost:11000";
+const BASE_URL = (import.meta.env.VITE_API_URL || "http://localhost:10000").trim();
+const AUTH_BASE_URL = (import.meta.env.VITE_AUTH_URL || "http://localhost:11000").trim();
 
 function attachInterceptors(instance) {
   instance.interceptors.request.use(
