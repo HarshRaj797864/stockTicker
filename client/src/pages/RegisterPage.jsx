@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../app/AuthContext";
-import { api } from "../shared/lib/api";
+import { authApi } from "../shared/lib/api";
 
 export const RegisterPage = () => {
   const [username, setUsername] = useState("");
@@ -20,7 +20,7 @@ export const RegisterPage = () => {
     setIsLoading(true);
 
     try {
-      const response = await api.post("/auth/signup", {
+      const response = await authApi.post("/auth/signup", {
         name: username,
         email,
         password,

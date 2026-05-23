@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../app/AuthContext";
-import { api } from "../shared/lib/api";
+import { authApi } from "../shared/lib/api";
 
 export const LoginPage = () => {
   const [email, setEmail] = useState("");
@@ -18,7 +18,7 @@ export const LoginPage = () => {
     setIsLoading(true);
 
     try {
-      const response = await api.post("/auth/login", { email, password });
+      const response = await authApi.post("/auth/login", { email, password });
       const { user, token } = response.data;
       login(user, token);
       navigate("/dashboard");
