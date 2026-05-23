@@ -41,6 +41,26 @@ services:
     networks:
       - stocknet
 
+  auth:
+    build:
+      context: ./server
+    command: node auth-service/server.js
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgresql://stock:${POSTGRES_PASSWORD:-stockpass}@postgres:5432/stockticker?schema=public
+      DIRECT_URL: postgresql://stock:${POSTGRES_PASSWORD:-stockpass}@postgres:5432/stockticker?schema=public
+      JWT_SECRET: ${JWT_SECRET:-dev-secret-change-me}
+      FRONTEND_URL: ${FRONTEND_URL:-http://localhost:5173}
+      AUTH_PORT: 11000
+      NODE_ENV: production
+    ports:
+      - "11000:11000"
+    depends_on:
+      migrator:
+        condition: service_completed_successfully
+    networks:
+      - stocknet
+
   api:
     build:
       context: ./server

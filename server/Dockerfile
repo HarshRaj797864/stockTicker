@@ -27,6 +27,7 @@ COPY prisma.config.js ./
 
 COPY --from=builder /app/generated ./generated
 COPY app.js server.js ./
+COPY auth-service ./auth-service
 COPY controllers ./controllers
 COPY db ./db
 COPY lib ./lib
