@@ -1,6 +1,6 @@
 # Architecture
 
-StockTicker is a multi-service application: a stateless HTTP API, a standalone market-data worker, and a one-shot database migrator, coordinated by Docker Compose and connected by Redis Pub/Sub.
+StockTicker is a multi-service application: a stateless HTTP API, an isolated authentication service, a standalone market-data worker, and a one-shot database migrator, coordinated by Docker Compose and connected by Redis Pub/Sub.
 
 ## Service Topology
 
@@ -33,11 +33,19 @@ StockTicker is a multi-service application: a stateless HTTP API, a standalone m
 
 ## Services
 
+### Auth Service (`server/auth-service/`, container `auth`)
+- Separate Express process on port `11000`. Boots from `auth-service/server.js`.
+- Owns: `/api/auth/signup`, `/api/auth/login`, `/api/auth/me`, `/api/health`.
+- Issues JWTs signed with the shared `JWT_SECRET`.
+- Has no other responsibilities — it does not serve stocks, watchlists, or sockets.
+- The browser hits this service directly via the `authApi` axios instance (`VITE_AUTH_URL`).
+
 ### Main API (`server/`, container `api`)
 - Express 5 + Socket.io 4 sharing one HTTP server on port `10000`.
-- Routes: `/api/auth/*` (signup, login, getMe), `/api/stocks/*`, `/api/watchlists/*`, `/api/health`.
+- Routes: `/api/stocks/*`, `/api/watchlists/*`, `/api/health`. **Does not** serve `/api/auth/*` — those return 404 here by design.
+- Validates JWTs issued by the Auth Service using the shared `JWT_SECRET` via the existing `isAuthenticated` middleware.
 - On startup, opens a Redis `PSUBSCRIBE` on `market:prices:*` and forwards every payload to the Socket.io room `prices:<symbol>`.
-- Stateless. Killing it does not interrupt market-data ingestion.
+- Stateless. Killing it does not interrupt market-data ingestion or auth.
 
 ### Market Data Worker (`server/worker/index.js`, container `worker`)
 - Separate Node.js process. No HTTP listener.
@@ -78,6 +86,12 @@ StockTicker is a multi-service application: a stateless HTTP API, a standalone m
 - Auth, watchlist CRUD, and stock-search queries continue to hit the Main API directly. No worker involvement, no Pub/Sub.
 
 ## Key Design Choices
+
+### Why split Auth into its own service?
+- Failure isolation: a bug in the auth flow can't take down stock/watchlist endpoints.
+- Bounded scope keeps the surface easy to audit — auth code lives behind one port, with one purpose.
+- Shared `JWT_SECRET` is the only coupling between Auth and Main API; that's a contract, not a runtime dependency. Main API doesn't proxy or call Auth at request time, it just verifies signatures.
+- The split is honest microservice separation (two processes, two ports) rather than a reverse-proxy pretending to be one — recruiters can see both running.
 
 ### Why a separate Worker process (not a setInterval inside the API)?
 - Polling work cannot stall the API's request thread. A slow Finnhub call doesn't lengthen p95 on `/api/watchlists`.

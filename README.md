@@ -27,7 +27,8 @@ The goal was not completeness, but **depth and explainability**.
 
 A multi-service stack running under Docker Compose. See [ARCHITECTURE.md](./ARCHITECTURE.md) for the full design.
 
-* **Main API** — Express + Socket.io. REST under `/api/*`, real-time price stream over WebSocket.
+* **Auth Service** — separate Express process on port `11000`. Owns `/api/auth/*` (signup, login, getMe), issues JWTs.
+* **Main API** — Express + Socket.io on port `10000`. REST under `/api/stocks/*` and `/api/watchlists/*`, real-time price stream over WebSocket. Validates JWTs from Auth Service via shared `JWT_SECRET`.
 * **Market Data Worker** — standalone Node process. Polls a ticker list on a schedule, writes prices to Postgres, publishes per-ticker updates to Redis Pub/Sub on `market:prices:<symbol>`.
 * **Migrator** — one-shot container that runs `prisma migrate deploy` before the API boots.
 * **Postgres** + **Redis** — shared persistence and an inter-service Pub/Sub bus.
