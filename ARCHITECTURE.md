@@ -1,183 +1,128 @@
-# ARCHITECTURE.md - The Algo-Trading Microservices System
+# Architecture
 
-## 1. High-Level System Overview
+StockTicker is a multi-service application: a stateless HTTP API, a standalone market-data worker, and a one-shot database migrator, coordinated by Docker Compose and connected by Redis Pub/Sub.
 
-This project transitions from a Monolithic PERN application to a **Event-Driven, Polyglot Microservices Architecture**. It combines high-performance Node.js I/O with Python's quantitative capabilities.
-
-### Service Mesh
-
-* **Service A (The Gateway):** Node.js/Express. Handles Auth, REST API, WebSocket (User Facing).
-* **Service B (The Worker):** Node.js Background Worker. Handles Backtesting logic & Number crunching.
-* **Service C (The Lab):** Python Offline Trainer. Trains RL agents on historical data (Batch Jobs).
-* **Service D (The Oracle):** Python FastAPI. Serves Real-time ML predictions (Inference).
-* **Service E (The Analyst):** Python/LangChain. Performs RAG-based Sentiment Analysis on News.
-
----
-
-## Phase 1: Advanced Backend Engineering (Weeks 1-2)
-
-**Goal:** Data Integrity & Asynchronous Processing.
-**Tech Stack:** Node.js, TypeScript, PostgreSQL, Redis, BullMQ.
-
-### 1.1 The "God Mode" Database Schema
-
-We move from generic types to Financial-Grade data structures.
-
-* **Action:** Create a migration for the `market_data` table.
-* **Critical Specs:**
-* **Price:** `NUMERIC(15, 6)` (Never use Float/Double for money).
-* **Time:** `TIMESTAMPTZ` (Timezone aware is mandatory for global markets).
-* **Constraints:** Composite Primary Key `(symbol, timestamp)`.
-
-
-* **Performance Optimization:**
-* Create a **Composite B-Tree Index** on `(symbol, timestamp DESC)`.
-* *Why:* This enables  range scans for "Get me AAPL data from 2020 to 2023" used in backtesting.
-
-
-
-### 1.2 Event-Driven Architecture (The Queue)
-
-We decouple the "Backtest" button from the API response to prevent blocking the Event Loop.
-
-* **Library:** `bullmq` (built on Redis Streams).
-* **Flow:**
-1. User clicks "Run Strategy".
-2. **Service A** pushes payload `{ strategyId, symbol, dateRange }` to Redis `job_queue`.
-3. **Service A** immediately returns `202 Accepted` to the frontend.
-4. **Service B** (Worker) detects the job, fetches data from Postgres, runs the loop, and writes results to `backtest_results` table.
-5. **WebSocket** notifies the user when finished.
-
-
-
----
-
-## Phase 2: Infrastructure & DevOps (Weeks 3-4)
-
-**Goal:** Production-Ready Environment.
-**Tech Stack:** Docker, Nginx, AWS EC2, Linux.
-
-### 2.1 Containerization Strategy
-
-* **Multi-Stage Builds:** Use `node:20-alpine` as the base.
-* *Stage 1 (Builder):* Install all dependencies (including `devDependencies`), compile TypeScript to JS.
-* *Stage 2 (Runner):* Copy only `dist/` and `package.json`. Install only `production` deps.
-* *Result:* Image size drops from ~1GB to ~150MB.
-
-
-* **Networking:** Define a custom bridge network `trading-net` in `docker-compose.yml` so services resolve by name (e.g., `postgres:5432`).
-
-### 2.2 Cloud Deployment (AWS)
-
-* **Compute:** AWS EC2 t2.micro (Ubuntu 24.04).
-* **Gateway (Nginx):**
-* Run Nginx *outside* Docker (on the host) or as a container.
-* **Reverse Proxy:** Route port 80 -> `localhost:3000`.
-* **Security:** Rate Limit requests to 10 req/sec to prevent DDoS.
-
-
-* **Firewall (Security Groups):** Allow ONLY 22 (SSH), 80 (HTTP), 443 (HTTPS). **Block** 3000, 5432, 6379 from the public internet.
-
----
-
-## Phase 3: The Offline RL Pipeline (Weeks 5-6)
-
-**Goal:** Reinforcement Learning Environment (BTP Integration).
-**Tech Stack:** Python, Gymnasium (OpenAI), Stable-Baselines3, Pandas.
-
-### 3.1 The "Gym" Environment
-
-* **Task:** Create a custom class `TradingEnv` inheriting from `gymnasium.Env`.
-* **Observation Space:** A normalized vector of `[Close Price, RSI, MACD, Volume, PositionStatus]`.
-* **Action Space:** Discrete `{0: HOLD, 1: BUY, 2: SELL}`.
-* **Reward Function:** `(CurrentPortfolioValue - PreviousPortfolioValue) - TransactionCosts`.
-
-### 3.2 The Training Loop (Service C)
-
-* **Workflow:**
-1. Script connects to the Postgres Container to fetch 5 years of `market_data`.
-2. Trains a **PPO (Proximal Policy Optimization)** agent.
-3. **Artifact Generation:** Saves the trained "brain" as `model_v1.zip` to a shared volume `/models`.
-
-
-
----
-
-## Phase 4: The ML Integration (Weeks 7-8)
-
-**Goal:** Real-time Inference Microservice.
-**Tech Stack:** Python, FastAPI, Pydantic, Uvicorn.
-
-### 4.1 Service D (The Oracle)
-
-* **Role:** Exposes the trained model via HTTP.
-* **Endpoint:** `POST /predict`
-* **Contract:**
-```json
-// Request
-{ "state": [150.2, 65.5, 0.02, 1200000, 1] } 
-// Response
-{ "action": 1, "confidence": 0.88 }
+## Service Topology
 
 ```
+┌──────────────┐                                  ┌──────────────────┐
+│   Frontend   │  ◀───── Socket.io (WebSocket) ───│                  │
+│  (React +    │                                  │   Main API       │
+│   Vite)      │  ──────── REST /api/* ──────────▶│  (Express +      │
+└──────────────┘                                  │   Socket.io)     │
+                                                  └────┬────────▲────┘
+                                                       │        │
+                                          Prisma write │        │ PSUBSCRIBE
+                                                       ▼        │ market:prices:*
+                                                  ┌──────────────────┐
+                                                  │    Postgres      │
+                                                  │  (shared DB)     │
+                                                  └──────────────────┘
+                                                       ▲
+                                          Prisma write │
+                                                       │
+                                                  ┌────┴─────────────┐         ┌──────────┐
+                                                  │  Market Data     │ PUBLISH │  Redis   │
+                                                  │  Worker          │────────▶│ Pub/Sub  │
+                                                  │  (Node poller)   │         └─────┬────┘
+                                                  └──────────────────┘               │
+                                                                                     │
+                                                                                     ▼
+                                                                          (API subscriber above)
+```
 
+## Services
 
-* **Logic:**
-1. On startup (`@app.on_event("startup")`), load `model_v1.zip` into memory.
-2. On request, run `model.predict(state)` and return JSON.
+### Main API (`server/`, container `api`)
+- Express 5 + Socket.io 4 sharing one HTTP server on port `10000`.
+- Routes: `/api/auth/*` (signup, login, getMe), `/api/stocks/*`, `/api/watchlists/*`, `/api/health`.
+- On startup, opens a Redis `PSUBSCRIBE` on `market:prices:*` and forwards every payload to the Socket.io room `prices:<symbol>`.
+- Stateless. Killing it does not interrupt market-data ingestion.
 
+### Market Data Worker (`server/worker/index.js`, container `worker`)
+- Separate Node.js process. No HTTP listener.
+- Polls a configurable ticker list every `POLL_INTERVAL_MS` (default 10s).
+- Fetches quotes (Finnhub when `FINNHUB_API_KEY` is set, otherwise deterministic mock data).
+- Upserts to Postgres via Prisma, then `PUBLISH`es one Redis message per ticker on `market:prices:<symbol>`.
+- Killing the worker does not interrupt the API; restart resumes polling without manual intervention.
 
+### Migrator (container `migrator`, builds from Dockerfile `target: builder`)
+- One-shot container that runs `prisma migrate deploy` and exits.
+- API depends on `migrator: service_completed_successfully` so the schema is always current before the API accepts traffic.
+- Builds from the `builder` stage because the slim runtime image deliberately omits the Prisma CLI.
 
-### 4.2 Inter-Service Communication
+### Postgres (`postgres:16.2-alpine`)
+- Shared by API and Worker (shared-database microservices pattern).
+- Healthchecked via `pg_isready`.
+- Internal-only port in `docker-compose.yml`; exposed on host `5433` in `docker-compose.override.yml` for local GUI access.
 
-* **Node.js Integration:**
-* Service A does *not* run the model.
-* Service A calls Service D: `axios.post('http://ml-service:8000/predict', data)`.
+### Redis (`redis:7.2-alpine`)
+- Pub/Sub channel `market:prices:<symbol>` is the only inter-service messaging surface.
+- Healthchecked via `redis-cli ping`.
+- Internal-only port in `docker-compose.yml`; exposed on host `6380` in `docker-compose.override.yml`.
 
+## Data Flow
 
+**Live price update path** (every poll cycle):
 
----
+1. Worker calls `syncMarketData(TICKERS, { onUpdate })`.
+2. For each ticker, `fetchQuote` returns `{ currentPrice, initialPrice }` (mock or Finnhub).
+3. Prisma `upsert` writes the row.
+4. `onUpdate(stock)` calls `publisher.publish("market:prices:" + symbol, JSON.stringify(payload))`.
+5. API's PSUBSCRIBE receives the message.
+6. API extracts the symbol from the channel name, looks up the Socket.io room `prices:<symbol>`, and `io.to(room).emit("price", payload)`.
+7. Each browser tab subscribed to that symbol receives the event in its `useLivePrice` hook and re-renders.
 
-## Phase 5: The GenAI "Edge" (Weeks 9-12)
+**REST path** (unchanged from the monolith):
 
-**Goal:** Multi-Modal Sentiment Analysis (RAG).
-**Tech Stack:** LangChain, OpenAI API (or Ollama), pgvector.
+- Auth, watchlist CRUD, and stock-search queries continue to hit the Main API directly. No worker involvement, no Pub/Sub.
 
-### 5.1 The Vector Database
+## Key Design Choices
 
-* **Extension:** Enable `vector` extension in PostgreSQL.
-* **Table:** `news_embeddings`
-* Columns: `id`, `headline`, `url`, `embedding (vector[1536])`, `sentiment_score`.
+### Why a separate Worker process (not a setInterval inside the API)?
+- Polling work cannot stall the API's request thread. A slow Finnhub call doesn't lengthen p95 on `/api/watchlists`.
+- The Worker can be scaled or rescheduled independently.
+- Failure isolation: a Worker crash doesn't take down the user-facing API.
 
+### Why two separate Redis connections in `server/lib/redis.js`?
+ioredis (and the Redis protocol) put a client into a one-way subscribe mode once `SUBSCRIBE`/`PSUBSCRIBE` is issued. A subscribed client can no longer issue regular commands. The Main API needs to both publish (in future sprints) and subscribe, so it holds two connections via `getPublisher()` / `getSubscriber()`.
 
+### Why a single shared Postgres (not DB-per-service)?
+DB-per-service is the textbook microservices pattern but introduces saga complexity, cross-DB FK loss, and a much heavier ops surface. Most production "microservice" deployments use shared persistence with bounded contexts at the code level. Auth, market-data, and portfolio domains share one schema but never reach into each other's tables.
 
-### 5.2 The RAG Pipeline (Service E)
+### Why Pub/Sub (not BullMQ or Kafka)?
+Pub/Sub is fire-and-forget, which is correct for live price updates: a missed message is fine because the next tick replaces it. BullMQ is the right answer when you need durability, retries, and at-least-once delivery (e.g., placing an order). Kafka is right when you need replay and ordering across consumer groups. Neither is required here.
 
-* **Ingestion:** Python script fetches financial news (e.g., NewsAPI).
-* **Embedding:** Pass headlines to OpenAI `text-embedding-3-small` to get vectors.
-* **Storage:** Save vectors to Postgres.
-* **Retrieval:** When generating a trade signal, query:
-* *"Select top 3 news items semantically related to 'Apple Crash' from last 24h".*
+### Why a separate `migrator` service (not run-on-startup in the API)?
+- API startup stays fast and deterministic.
+- Runtime image stays slim — it doesn't ship the Prisma CLI.
+- Compose's `service_completed_successfully` gives a clean ordering primitive.
 
+## Local Development
 
-* **Synthesis:**
-* LLM Prompt: *"Given these 3 headlines, output a sentiment score from -1.0 to 1.0."*
-* **Fusion:** This score becomes an extra input feature for the RL Model in Phase 3 (Retraining required).
+```
+git clone <repo>
+cd stockTicker
+docker compose up --build
+# API:      http://localhost:10000
+# Postgres: localhost:5433 (via override)
+# Redis:    localhost:6380 (via override)
 
+# Frontend (separate terminal):
+cd client && npm install && npm run dev
+# Open http://localhost:5173
+```
 
+## Configuration
 
----
-
-## Technology Stack Summary
-
-| Component | Tech Choice | Why? |
-| --- | --- | --- |
-| **Language** | TypeScript (Node) & Python | Best of both worlds (IO vs Math). |
-| **Database** | PostgreSQL | Reliability + Vector Search support. |
-| **Cache/Queue** | Redis | Industry standard for async jobs. |
-| **Container** | Docker | Dependency isolation. |
-| **ML/RL** | PyTorch / Stable-Baselines3 | Standard for RL research. |
-| **GenAI** | LangChain | Abstraction for LLM logic. |
-| **API Spec** | OpenAPI (Swagger) | Auto-documentation. |
-
----
+| Env var | Default | Owner |
+|---|---|---|
+| `POSTGRES_PASSWORD` | `stockpass` | postgres |
+| `DATABASE_URL`, `DIRECT_URL` | composed from POSTGRES_PASSWORD | api, worker, migrator |
+| `REDIS_URL` | `redis://redis:6379` | api, worker |
+| `JWT_SECRET` | `dev-secret-change-me` | api |
+| `FRONTEND_URL` | `http://localhost:5173` | api (CORS allowlist) |
+| `FINNHUB_API_KEY` | empty | worker |
+| `MOCK_PRICES` | `true` | worker (deterministic mock if no Finnhub key) |
+| `POLL_INTERVAL_MS` | `10000` | worker |
+| `WORKER_TICKERS` | `AAPL,MSFT,GOOGL,AMZN,TSLA,NVDA,META` | worker |
