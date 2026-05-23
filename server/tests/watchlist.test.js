@@ -1,21 +1,22 @@
 import { describe, it, expect, beforeEach, afterAll } from "vitest";
 import request from "supertest";
 import app from "../app.js";
+import authApp from "../auth-service/app.js";
 import prisma from "../db/db.js";
 
 const getAuthToken = async (email) => {
-  const signup = await request(app)
+  const signup = await request(authApp)
     .post("/api/auth/signup")
     .send({ email, password: "password123", name: "Test" });
-    
+
   if (signup.status !== 201 && signup.status !== 409) {
      throw new Error(`Signup failed in test setup: ${signup.body.error}`);
   }
 
-  const res = await request(app)
+  const res = await request(authApp)
     .post("/api/auth/login")
     .send({ email, password: "password123" });
-    
+
   return res.body.token;
 };
 

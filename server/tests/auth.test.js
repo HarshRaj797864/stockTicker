@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, afterAll } from "vitest";
 import request from "supertest";
-import app from "../app.js";
+import app from "../auth-service/app.js";
 import prisma from "../db/db.js";
 import jwt from "jsonwebtoken";
 
