@@ -54,43 +54,52 @@ export const createNewStock = async ({
   return stock;
 };
 
-export const syncMarketData = async (tickers) => {
-  console.log(`Syncing data via Finnhub for: ${tickers.join(", ")}`);
+async function fetchQuote(symbol, { apiKey, useMock }) {
+  if (useMock) {
+    const base = 50 + (symbol.charCodeAt(0) % 26) * 15;
+    const drift = (Math.random() - 0.5) * 4;
+    return { currentPrice: Number((base + drift).toFixed(2)), initialPrice: base };
+  }
+  const response = await axios.get(`https://finnhub.io/api/v1/quote`, {
+    params: { symbol, token: apiKey },
+  });
+  const { c: currentPrice, pc: initialPrice } = response.data;
+  return { currentPrice, initialPrice };
+}
 
+export const syncMarketData = async (tickers, { onUpdate } = {}) => {
   const apiKey = process.env.FINNHUB_API_KEY;
-  if (!apiKey) {
-    throw new Error("Missing FINNHUB_API_KEY in environment variables");
+  const useMock = process.env.MOCK_PRICES === "true";
+
+  if (!useMock && !apiKey) {
+    throw new Error("Missing FINNHUB_API_KEY (or set MOCK_PRICES=true)");
   }
 
   const updates = tickers.map(async (symbol) => {
     try {
-      const response = await axios.get(`https://finnhub.io/api/v1/quote`, {
-        params: {
-          symbol: symbol,
-          token: apiKey,
-        },
-      });
-
-      const { c: currentPrice, pc: initialPrice } = response.data;
+      const { currentPrice, initialPrice } = await fetchQuote(symbol, { apiKey, useMock });
 
       if (currentPrice === 0) {
         console.warn(`Invalid symbol or no data for: ${symbol}`);
         return null;
       }
 
-      return prisma.stock.upsert({
-        where: { symbol: symbol },
+      const stock = await prisma.stock.upsert({
+        where: { symbol },
         update: {
           currentPrice: Number(currentPrice),
           initialPrice: Number(initialPrice),
         },
         create: {
-          symbol: symbol,
+          symbol,
           companyName: symbol,
           currentPrice: Number(currentPrice),
           initialPrice: Number(initialPrice),
         },
       });
+
+      if (onUpdate) await onUpdate(stock);
+      return stock;
     } catch (error) {
       console.error(`Failed to fetch ${symbol}:`, error.message);
       return null;
