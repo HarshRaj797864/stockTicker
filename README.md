@@ -23,37 +23,56 @@ The goal was not completeness, but **depth and explainability**.
 
 ---
 
+## Architecture
+
+A multi-service stack running under Docker Compose. See [ARCHITECTURE.md](./ARCHITECTURE.md) for the full design.
+
+* **Main API** — Express + Socket.io. REST under `/api/*`, real-time price stream over WebSocket.
+* **Market Data Worker** — standalone Node process. Polls a ticker list on a schedule, writes prices to Postgres, publishes per-ticker updates to Redis Pub/Sub on `market:prices:<symbol>`.
+* **Migrator** — one-shot container that runs `prisma migrate deploy` before the API boots.
+* **Postgres** + **Redis** — shared persistence and an inter-service Pub/Sub bus.
+
+The API subscribes to `market:prices:*` and fans messages out to the Socket.io room `prices:<symbol>`. The React client uses a `useLivePrice(symbol)` hook to subscribe per ticker on the watchlist page and re-renders on each tick.
+
 ## Tech Stack
 
 ### Frontend
-
-* React (Vite)
-* JavaScript
-* Axios
-* React Router
-* Context API (authentication & global state)
+* React 19 + Vite 7
+* React Router 7, TanStack Query, React Hook Form, Zod
+* Tailwind CSS 4
+* **socket.io-client** for live price subscriptions
 
 ### Backend
+* Node.js 22 + Express 5
+* **Socket.io 4** (real-time)
+* **ioredis 5** (Pub/Sub)
+* PostgreSQL 16 + Prisma 7 (with `@prisma/adapter-pg`)
+* JWT auth, Zod request validation
 
-* Node.js
-* Express
-* PostgreSQL
-* Prisma ORM
-* JWT-based authentication
-
-### External Services
-
-* **Finnhub API** — real stock market data
-* **Vercel** — frontend deployment
-* **Microsoft Azure (PaaS)** — backend deployment
-* **Supabase** — PostgreSQL database
+### Infrastructure
+* **Docker Compose** — 4 services (api, worker, postgres, redis) on an isolated bridge network with healthchecks and a `service_completed_successfully` migration gate
+* Multi-stage Dockerfile, non-root runtime user, pinned image versions
 
 ### Testing
+* Vitest + Supertest (backend integration)
+* Vitest + React Testing Library (frontend)
+* `server/scripts/verify-realtime.mjs` — manual end-to-end check of the Pub/Sub → Socket.io pipeline
 
-* Vitest
-* Supertest
-* React Testing Library
-  (Tests focus on API behavior and user-visible UI flows only)
+## Quickstart
+
+```bash
+git clone <repo>
+cd stockTicker
+docker compose up --build
+# API:    http://localhost:10000
+# Health: http://localhost:10000/api/health
+
+# Frontend (separate terminal):
+cd client && npm install && npm run dev
+# Browser: http://localhost:5173
+```
+
+The worker defaults to `MOCK_PRICES=true` so the demo runs without a Finnhub key. To use live Finnhub data, copy `.env.example` to `.env`, set `FINNHUB_API_KEY`, and set `MOCK_PRICES=false`.
 
 ---
 
