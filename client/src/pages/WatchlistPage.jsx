@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { api } from "../shared/lib/api";
+import { useLivePrice } from "../shared/lib/socket";
 import { useRemoveFromWatchlist } from "../features/watchlist/api/mutations";
 
 const useCreateWatchlist = () => {
@@ -42,17 +43,22 @@ const useWatchlists = () => {
 const WatchlistRow = ({ item, watchlistId }) => {
   const stock = item.stock;
   const removeMutation = useRemoveFromWatchlist();
+  const live = useLivePrice(stock.symbol);
 
-  const initial = stock.initialPrice || stock.currentPrice;
-  const current = stock.currentPrice || 0;
+  const initial = live?.initialPrice ?? stock.initialPrice ?? stock.currentPrice;
+  const current = live?.currentPrice ?? stock.currentPrice ?? 0;
   const change = initial !== 0 ? ((current - initial) / initial) * 100 : 0;
   const isPositive = change >= 0;
+  const isLive = live !== null;
 
   return (
     <div className="flex flex-col md:grid md:grid-cols-5 items-start md:items-center p-4 border-b border-white/5 last:border-0 hover:bg-white/5 transition-colors gap-3 md:gap-0">
       <div className="w-full md:w-auto flex justify-between items-center md:block">
-        <span className="font-bold text-white text-lg md:text-base">
+        <span className="font-bold text-white text-lg md:text-base inline-flex items-center gap-2">
           {stock.symbol}
+          {isLive && (
+            <span className="inline-block w-2 h-2 rounded-full bg-[#A3FFEA] animate-pulse" title="Live" />
+          )}
         </span>
 
         <span className="md:hidden font-mono text-gray-300">
